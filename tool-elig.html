@@ -1,0 +1,811 @@
+<!doctype html>
+<html lang="en-IN" data-page="tool-elig">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Home loan eligibility calculator · Mukul Chopra</title>
+<meta name="description" content="Estimate how much home loan your income can support.">
+<link rel="canonical" href="https://mukulchopra.in/tool-elig">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Mukul Chopra">
+<meta property="og:title" content="Home loan eligibility calculator · Mukul Chopra">
+<meta property="og:description" content="Estimate how much home loan your income can support.">
+<meta property="og:url" content="https://mukulchopra.in/tool-elig">
+<meta property="og:image" content="https://mukulchopra.in/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#0E1B33">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="/site.css">
+</head>
+<body>
+<div id="top-anchor" aria-hidden="true"></div>
+<header class="site">
+  <div class="wrap bar">
+    <a class="brand"  href="/" data-route="home"><span class="mono-mark">MC</span>Mukul Chopra</a>
+    <button class="menu-btn" id="menu-btn" aria-label="Open menu" aria-expanded="false" aria-controls="main-menu"><span></span><span></span><span></span></button>
+    <nav class="menu" id="main-menu" aria-label="Main">
+      <a href="/" data-route="home">Home</a>
+      <a href="/trade-finance" data-route="trade-finance">Trade Finance</a>
+      <a href="/tools" data-route="tools">Tools</a>
+      <a href="/blog" data-route="blog">Blog <span class="pill">Soon</span></a>
+      <a href="/contact" data-route="contact">Contact</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+
+<!-- ============ HOME ============ -->
+<section class="page" id="page-home" hidden>
+  <div class="bento">
+    <div class="t t-intro">
+      <p class="eyebrow">Delhi, India</p>
+      <h1>Mukul<br>Chopra</h1>
+      <p class="tagline">Banker <span>·</span> Finance professional <span>·</span> Trade finance enthusiast</p>
+      <p class="t-lede">Practical guides and free calculators for trade finance and home loans, built from 11+ years on the job.</p>
+      <div class="cta-row">
+        <a class="btn"  href="/tools" data-route="tools">Try the calculators</a>
+        <a class="btn ghost"  href="/contact" data-route="contact">Get in touch</a>
+      </div>
+    </div>
+    <div class="t t-photo t-photo-img"><img src="/mukul-chopra.jpg" alt="Mukul Chopra" width="720" height="864"></div>
+    <div class="t t-stat"><span class="t-label">Years in banking</span><b>11+</b></div>
+    <div class="t t-stat2"><span class="t-label">Certified</span><b>CAIIB</b></div>
+
+    <div class="t t-about">
+      <p class="eyebrow">About me</p>
+      <h2>Banking experience across trade finance, credit and branch operations</h2>
+      <p>Banker with 11+ years of experience across trade finance, retail credit and branch banking. CAIIB certified.</p>
+      <p>My work spans documentary credits, document examination under UCP 600, export–import transactions, and home loan appraisal. Here I share practical guides and calculators drawn from that experience.</p>
+    </div>
+    <div class="t t-skill">
+      <div class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17h13l3-4H6z"/><path d="M8 13V8h6v5"/><path d="M2 21c3 0 3-2 6-2s3 2 6 2 3-2 6-2"/></svg></div>
+      <h3>Trade finance</h3>
+      <p class="muted">Letters of credit, document examination under UCP 600 and export–import transactions.</p>
+    </div>
+    <div class="t t-skill">
+      <div class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V5"/><path d="M4 19h16"/><path d="M8 15l3-4 3 2 5-6"/></svg></div>
+      <h3>Retail credit</h3>
+      <p class="muted">Home loan appraisal, repayment-capacity assessment and the path from application to disbursement.</p>
+    </div>
+    <div class="t t-skill">
+      <div class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-5 9 5"/><path d="M4 9h16"/><path d="M6 9v9M10 9v9M14 9v9M18 9v9"/><path d="M3 20h18"/></svg></div>
+      <h3>Branch banking</h3>
+      <p class="muted">Customer service, account operations and day-to-day banking at the branch.</p>
+    </div>
+    <div class="t t-life">
+      <p class="eyebrow">Beyond work</p>
+      <p>Outside work, I'm usually out for a morning run or reading about markets.</p>
+    </div>
+
+    <a class="t t-tf"  href="/trade-finance" data-route="trade-finance">
+      <p class="eyebrow">Learn</p>
+      <h3>Trade Finance</h3>
+      <p class="muted">LC basics, UCP 600 in plain English, document checklists and common discrepancies.</p>
+      <span class="go">Start learning →</span>
+    </a>
+    <a class="t t-tools"  href="/tools" data-route="tools">
+      <p class="eyebrow">Use</p>
+      <h3>Calculators &amp; Tools</h3>
+      <p class="muted">Home loan EMI and eligibility, LC dates, Incoterms, SIP and FD.</p>
+      <span class="go">Open the tools →</span>
+    </a>
+    <a class="t t-contact"  href="/contact" data-route="contact">
+      <div><h3>Have a question?</h3><p class="muted">Ask about trade finance or home loans, or share feedback on the tools.</p></div>
+      <span class="btn">Get in touch →</span>
+    </a>
+  </div>
+
+</section>
+
+<!-- ============ CONTACT ============ -->
+<section class="page" id="page-contact" hidden>
+  <div class="contact">
+    <div class="side">
+      <img class="contact-photo" src="/mukul-chopra-casual.jpg" alt="Mukul Chopra" width="320" height="320">
+      <p class="eyebrow">Contact</p>
+      <h2>Get in touch</h2>
+      <p class="muted">Have a question about trade finance or home loans, or feedback on the tools? Send a message and I'll reply by email.</p>
+      <div class="socials">
+        <a class="social" href="https://www.linkedin.com/in/mukul-chopra-322913187" target="_blank" rel="noopener">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M4.98 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5zM3 9.5h4V21H3zM9.5 9.5h3.8v1.6h.1c.5-1 1.8-2 3.8-2 4 0 4.8 2.6 4.8 6V21h-4v-5.2c0-1.2 0-2.9-1.8-2.9s-2 1.4-2 2.8V21h-4z"/></svg>
+          LinkedIn</a>
+        <a class="social" href="https://www.instagram.com/mukul.chopra1/" target="_blank" rel="noopener">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor"/></svg>
+          @mukul.chopra1</a>
+      </div>
+    </div>
+    <form class="cform" id="contact-form" novalidate>
+      <input type="hidden" name="access_key" value="1de689c6-2e42-4a64-8df1-01a7c74b2378">
+      <input type="hidden" name="subject" value="New message from mukulchopra.in">
+      <div class="row2">
+        <div class="field"><label for="c-name">Your name</label><input id="c-name" name="name" required autocomplete="name"></div>
+        <div class="field"><label for="c-email">Email</label><input id="c-email" name="email" type="email" required autocomplete="email"></div>
+      </div>
+      <div class="field"><label for="c-msg">Message</label><textarea id="c-msg" name="message" required></textarea></div>
+      <div><button class="btn" type="submit">Send message</button></div>
+      <p class="note" id="c-note" hidden></p>
+    </form>
+  </div>
+</section>
+
+<!-- ============ TRADE FINANCE HUB ============ -->
+<section class="page" id="page-trade-finance" hidden>
+  <div class="block band">
+    <p class="eyebrow">Trade Finance</p>
+    <h1>The rules behind international trade</h1>
+    <p class="lede">Notes from the desk: how documentary credits really work, what examiners look for, and where presentations go wrong. Pick a rule set to start.</p>
+  </div>
+  <div class="tf-group">
+    <div class="grp-label"><span>Documentary credits</span></div>
+    <div class="bento tf-bento">
+    <a class="t t-rule t-ucp"  href="/ucp-600" data-route="ucp-600">
+      <div class="ucp-stats"><div><b>39</b><span>articles</span></div><div><b>5</b><span>banking days to examine</span></div><div><b>21</b><span>days to present</span></div></div>
+      <span class="rcode">UCP 600</span>
+      <h2>Documentary credits</h2>
+      <p class="muted">All 39 articles in plain English, an MT700 field guide, key numbers, document checklists, common discrepancies and tips from practice.</p>
+      <span class="go">Explore UCP 600 →</span>
+    </a>
+    <a class="t t-rule"  href="/isbp-821" data-route="isbp-821"><span class="rcode">ISBP 821</span><h3>Examination practice</h3><p class="muted">How banks check documents under UCP 600.</p><span class="go">Explore →</span></a>
+    <a class="t t-rule"  href="/isp98" data-route="isp98"><span class="rcode">ISP98</span><h3>Standby credits</h3><p class="muted">Rules written specifically for standby LCs.</p><span class="go">Explore →</span></a>
+    <a class="t t-rule"  href="/eucp" data-route="eucp"><span class="rcode">eUCP 2.1</span><h3>Electronic presentation</h3><p class="muted">UCP 600 for electronic records.</p><span class="go">Explore →</span></a>
+    <a class="t t-small t-calc"  href="/tool-lc" data-route="tool-lc"><p class="eyebrow">Tool</p><h3>LC date calculator</h3><p class="muted">Last presentation date and examination deadline.</p><span class="go">Open →</span></a>
+    </div>
+  </div>
+  <div class="tf-group">
+    <div class="grp-label"><span>Collections, guarantees and delivery</span></div>
+    <div class="bento tf-bento">
+    <a class="t t-rule"  href="/urc-522" data-route="urc-522"><span class="rcode">URC 522</span><h3>Documentary collections</h3><p class="muted">D/P and D/A: documents without a bank's promise to pay.</p><span class="go">Explore →</span></a>
+    <a class="t t-rule"  href="/urdg-758" data-route="urdg-758"><span class="rcode">URDG 758</span><h3>Demand guarantees</h3><p class="muted">Performance, advance payment and bid guarantees.</p><span class="go">Explore →</span></a>
+    <a class="t t-rule"  href="/urr-725" data-route="urr-725"><span class="rcode">URR 725</span><h3>Bank reimbursements</h3><p class="muted">How the paying bank gets its money back.</p><span class="go">Explore →</span></a>
+    <a class="t t-rule t-inco"  href="/incoterms" data-route="incoterms"><span class="rcode">Incoterms® 2020</span><h3>Delivery terms</h3><p class="muted">The 11 terms, where risk passes, and which LC documents go with each.</p><span class="go">Explore →</span></a>
+    </div>
+  </div>
+  <div class="tf-group">
+    <div class="grp-label"><span>Practice and reference</span></div>
+    <div class="bento tf-bento">
+    <a class="t t-cases"  href="/case-studies" data-route="case-studies"><p class="eyebrow">Practice</p><h3>Case studies</h3><p class="muted">Real-world scenarios: discrepant or not? Tap to see the answer and the rule behind it.</p><span class="go">Try the cases →</span></a>
+    <a class="t t-small"  href="/glossary" data-route="glossary"><p class="eyebrow">Reference</p><h3>Glossary</h3><p class="muted">Definitions of the key terms used across these pages.</p><span class="go">Open →</span></a>
+    </div>
+  </div>
+  <div class="block">
+    <h2>Which instrument fits?</h2>
+    <p class="muted">A quick comparison of the four main ways banks support trade.</p>
+    <div class="table-scroll cmp-wide"><table class="compare">
+      <thead><tr><th></th><th>Documentary credit</th><th>Documentary collection</th><th>Demand guarantee</th><th>Standby credit</th></tr></thead>
+      <tbody>
+        <tr><td>Rules</td><td>UCP 600</td><td>URC 522</td><td>URDG 758</td><td>ISP98 or UCP 600</td></tr>
+        <tr><td>Bank promises to pay?</td><td>Yes</td><td>No</td><td>Yes, on demand</td><td>Yes, on demand</td></tr>
+        <tr><td>Banks examine documents?</td><td>Yes, in detail</td><td>Only that they are as listed</td><td>Yes, the demand</td><td>Yes, the demand</td></tr>
+        <tr><td>Main role</td><td>Payment</td><td>Payment</td><td>Security</td><td>Security, sometimes payment</td></tr>
+        <tr><td>Risk for the seller</td><td>Low</td><td>Higher: buyer may not pay</td><td colspan="2">Protects the beneficiary if the other party fails to perform</td></tr>
+        <tr><td>Cost</td><td>Higher</td><td>Lower</td><td>Varies</td><td>Varies</td></tr>
+      </tbody>
+    </table></div>
+    <div class="cmp-cards">
+      <div class="cc"><h3>Documentary credit</h3><dl><dt>Rules</dt><dd>UCP 600</dd><dt>Bank promises to pay?</dt><dd>Yes</dd><dt>Banks examine documents?</dt><dd>Yes, in detail</dd><dt>Main role</dt><dd>Payment</dd><dt>Risk for the seller</dt><dd>Low</dd><dt>Cost</dt><dd>Higher</dd></dl></div>
+      <div class="cc"><h3>Documentary collection</h3><dl><dt>Rules</dt><dd>URC 522</dd><dt>Bank promises to pay?</dt><dd>No</dd><dt>Banks examine documents?</dt><dd>Only that they are as listed</dd><dt>Main role</dt><dd>Payment</dd><dt>Risk for the seller</dt><dd>Higher: buyer may not pay</dd><dt>Cost</dt><dd>Lower</dd></dl></div>
+      <div class="cc"><h3>Demand guarantee</h3><dl><dt>Rules</dt><dd>URDG 758</dd><dt>Bank promises to pay?</dt><dd>Yes, on demand</dd><dt>Banks examine documents?</dt><dd>Yes, the demand</dd><dt>Main role</dt><dd>Security</dd><dt>Effect</dt><dd>Protects the beneficiary if the other party fails to perform</dd><dt>Cost</dt><dd>Varies</dd></dl></div>
+      <div class="cc"><h3>Standby credit</h3><dl><dt>Rules</dt><dd>ISP98 or UCP 600</dd><dt>Bank promises to pay?</dt><dd>Yes, on demand</dd><dt>Banks examine documents?</dt><dd>Yes, the demand</dd><dt>Main role</dt><dd>Security, sometimes payment</dd><dt>Effect</dt><dd>Protects the beneficiary if the other party fails to perform</dd><dt>Cost</dt><dd>Varies</dd></dl></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ UCP 600 ============ -->
+<section class="page" id="page-ucp-600" hidden>
+  <div class="block band">
+    <a class="crumb"  href="/trade-finance" data-route="trade-finance">← Trade Finance</a>
+    <p class="eyebrow">UCP 600 · ICC Uniform Customs and Practice for Documentary Credits</p>
+    <h1>Documentary credits</h1>
+    <p class="lede">The rules that govern almost every letter of credit worldwide. Summaries here are in my own words; always check the official ICC text for exact wording.</p>
+    <p class="srcnote">Based on ICC Publication No. 600 · Last reviewed October 2026</p>
+    <div class="subnav" data-tabs="ucp">
+      <button class="chip" data-tab="ov" aria-pressed="true">Overview</button>
+      <button class="chip" data-tab="arts" aria-pressed="false">All 39 articles</button>
+      <button class="chip" data-tab="nums" aria-pressed="false">Key numbers</button>
+      <button class="chip" data-tab="mt" aria-pressed="false">MT700 guide</button>
+      <button class="chip" data-tab="docs" aria-pressed="false">Document checklist</button>
+      <button class="chip" data-tab="disc" aria-pressed="false">Discrepancies</button>
+      <button class="chip" data-tab="tips" aria-pressed="false">Tips from practice</button>
+    </div>
+  </div>
+
+  <div class="block" data-tabpanel="ucp:ov">
+    <h2>What is a letter of credit?</h2>
+    <p class="lede">An LC is a bank's promise to pay the seller, provided the seller presents documents that comply with the credit's terms. The bank looks only at the documents, never at the goods. That single idea explains most of how LCs work.</p>
+    <div class="flow-scroll">
+      <ol class="flow">
+        <li><span class="who">Buyer ↔ Seller</span><b>Sale contract</b><span class="muted">Parties agree that payment will be by LC.</span></li>
+        <li><span class="who">Applicant → Issuing bank</span><b>LC application</b><span class="muted">Buyer asks its bank to issue the credit.</span></li>
+        <li><span class="who">Issuing bank → Advising bank</span><b>Issuance</b><span class="muted">LC is sent, usually by SWIFT MT700.</span></li>
+        <li><span class="who">Advising bank → Beneficiary</span><b>Advice</b><span class="muted">Seller's bank checks authenticity and advises it.</span></li>
+        <li><span class="who">Beneficiary</span><b>Shipment</b><span class="muted">Seller ships goods and gathers the documents.</span></li>
+        <li><span class="who">Beneficiary → Nominated bank</span><b>Presentation</b><span class="muted">Documents are presented within the period and expiry.</span></li>
+        <li><span class="who">Banks</span><b>Examination</b><span class="muted">Up to 5 banking days to decide if documents comply.</span></li>
+        <li><span class="who">Issuing bank → Beneficiary</span><b>Payment</b><span class="muted">Complying documents are honoured; buyer reimburses.</span></li>
+      </ol>
+    </div>
+    <div class="parties">
+      <div><b>Applicant</b><span class="muted">The buyer who requests the credit.</span></div>
+      <div><b>Beneficiary</b><span class="muted">The seller who gets paid.</span></div>
+      <div><b>Issuing bank</b><span class="muted">Gives the main promise to pay.</span></div>
+      <div><b>Advising bank</b><span class="muted">Checks authenticity and passes the LC on.</span></div>
+      <div><b>Confirming bank</b><span class="muted">Adds its own promise to pay.</span></div>
+      <div><b>Nominated bank</b><span class="muted">Authorised to pay, accept or negotiate.</span></div>
+    </div>
+  </div>
+
+  <div class="block" data-tabpanel="ucp:arts" hidden>
+    <div class="arts-head">
+      <h2>All 39 articles</h2>
+      <div class="field arts-search"><label for="ucp-art-q">Search articles</label><input id="ucp-art-q" placeholder="Try 'tolerance', 'insurance' or '14'"></div>
+    </div>
+    <div class="subnav" id="ucp-groupnav"></div>
+    <div id="ucp-arts"></div>
+  </div>
+
+  <div class="block" data-tabpanel="ucp:nums" hidden>
+    <h2>Key numbers to remember</h2>
+    <p class="muted">The figures that come up again and again, in daily work and in CAIIB and CDCS exams.</p>
+    <div class="nums" id="ucp-nums"></div>
+  </div>
+
+  <div class="block" data-tabpanel="ucp:mt" hidden>
+    <h2>Reading an MT700</h2>
+    <p class="muted">An LC usually arrives as a SWIFT MT700. These are the fields I check first, and what to look for in each.</p>
+    <div class="mt" id="mt-list"></div>
+  </div>
+
+  <div class="block" data-tabpanel="ucp:docs" hidden>
+    <h2>What to check on each document</h2>
+    <div class="docs">
+      <div class="doc"><span class="ref">UCP 600 · Art. 18</span><h3>Commercial invoice</h3><ul>
+        <li>Appears to be issued by the beneficiary</li><li>Made out in the name of the applicant</li><li>Same currency as the credit</li><li>Goods description corresponds with the LC</li><li>Need not be signed unless the LC asks</li></ul></div>
+      <div class="doc"><span class="ref">UCP 600 · Art. 20 &amp; 27</span><h3>Bill of lading</h3><ul>
+        <li>Names the carrier and is signed by the carrier, master or a named agent</li><li>Shows goods shipped on board, with a date</li><li>Port of loading and discharge as stated in the LC</li><li>Full set of originals, if issued in more than one</li><li>Clean: no clause showing defective goods or packing</li></ul></div>
+      <div class="doc"><span class="ref">UCP 600 · Art. 28</span><h3>Insurance document</h3><ul>
+        <li>Issued and signed by an insurer, underwriter or their agent</li><li>Dated no later than shipment, unless cover starts from shipment</li><li>At least 110% of the CIF or CIP value if the LC is silent</li><li>Same currency as the credit</li><li>All originals presented if more than one was issued</li></ul></div>
+      <div class="doc"><span class="ref">UCP 600 · Art. 6 &amp; 14</span><h3>Draft, origin certificate and others</h3><ul>
+        <li>Draft must not be drawn on the applicant</li><li>Amount within the credit amount and tolerance</li><li>Certificate issued by the party the LC names</li><li>Data does not conflict with other documents</li><li>Content appears to fulfil the document's function</li></ul></div>
+    </div>
+  </div>
+
+  <div class="block" data-tabpanel="ucp:disc" hidden>
+    <h2>Where presentations usually go wrong</h2>
+    <div class="disc" id="disc-list"></div>
+  </div>
+
+  <div class="block" data-tabpanel="ucp:tips" hidden>
+    <h2>Before you present: an exporter's checklist</h2>
+    <p class="muted">Most discrepancies are avoidable. These are the checks that save the most trouble.</p>
+    <ul class="tips" id="tips-list"></ul>
+  </div>
+</section>
+
+<!-- ============ ISBP 821 ============ -->
+<section class="page" id="page-isbp-821" hidden>
+  <div class="block band">
+    <a class="crumb"  href="/trade-finance" data-route="trade-finance">← Trade Finance</a>
+    <p class="eyebrow">ISBP 821 · International Standard Banking Practice</p>
+    <h1>Examination practice</h1>
+    <p class="lede">UCP 600 says documents must comply with "international standard banking practice". ISBP is where the ICC writes that practice down, document by document.</p>
+    <p class="srcnote">Based on ICC Publication No. 821 · Last reviewed October 2026</p>
+  </div>
+  <div class="rset">
+    <div class="rcard"><h3>What it is</h3><p class="muted">A companion to UCP 600, published by the ICC Banking Commission. ISBP 821 replaced ISBP 745. It does not change UCP 600; it explains how examiners apply it.</p></div>
+    <div class="rcard"><h3>How it is organised</h3><p class="muted">General principles first, then a section for each document: drafts, invoices, transport documents, insurance, certificates of origin, packing and weight lists, beneficiary's certificates and inspection certificates.</p></div>
+  </div>
+  <div class="block">
+    <h2>Practice points examiners use every day</h2>
+    <div class="pts" id="isbp-pts"></div>
+  </div>
+</section>
+
+<!-- ============ URDG 758 ============ -->
+<section class="page" id="page-urdg-758" hidden>
+  <div class="block band">
+    <a class="crumb"  href="/trade-finance" data-route="trade-finance">← Trade Finance</a>
+    <p class="eyebrow">URDG 758 · Uniform Rules for Demand Guarantees</p>
+    <h1>Demand guarantees</h1>
+    <p class="lede">Rules for guarantees and counter-guarantees payable on a complying demand, such as performance, advance payment, bid and retention guarantees.</p>
+    <p class="srcnote">Based on ICC Publication No. 758 · Last reviewed October 2026</p>
+  </div>
+  <div class="cmp-table table-scroll">
+    <table class="compare">
+      <thead><tr><th></th><th>Documentary credit (UCP 600)</th><th>Demand guarantee (URDG 758)</th></tr></thead>
+      <tbody>
+        <tr><td>Purpose</td><td>Primary means of payment</td><td>Security if the applicant does not perform</td></tr>
+        <tr><td>Expected outcome</td><td>Bank pays in the normal course</td><td>Bank pays only if something goes wrong</td></tr>
+        <tr><td>Who presents</td><td>Seller, with shipping documents</td><td>Beneficiary, with a demand and supporting statement</td></tr>
+        <tr><td>Examination time</td><td>5 banking days</td><td>5 business days</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="block">
+    <h2>Key provisions</h2>
+    <div class="pts" id="urdg-pts"></div>
+  </div>
+</section>
+
+<!-- ============ URC 522 ============ -->
+<section class="page" id="page-urc-522" hidden>
+  <div class="block band">
+    <a class="crumb"  href="/trade-finance" data-route="trade-finance">← Trade Finance</a>
+    <p class="eyebrow">URC 522 · Uniform Rules for Collections</p>
+    <h1>Documentary collections</h1>
+    <p class="lede">Banks pass documents from seller to buyer and release them against payment or acceptance. Unlike an LC, no bank promises to pay.</p>
+    <p class="srcnote">Based on ICC Publication No. 522 · Last reviewed October 2026</p>
+  </div>
+  <div class="rset">
+    <div class="rcard"><span class="rcode">D/P</span><h3>Documents against payment</h3><p class="muted">The buyer gets the documents, and so the goods, only after paying. Usually at sight.</p></div>
+    <div class="rcard"><span class="rcode">D/A</span><h3>Documents against acceptance</h3><p class="muted">The buyer gets the documents after accepting a bill of exchange to pay at a future date. The seller carries the credit risk until then.</p></div>
+  </div>
+  <div class="block">
+    <h2>The parties</h2>
+    <div class="parties">
+      <div><b>Principal</b><span class="muted">The seller who hands documents to its bank.</span></div>
+      <div><b>Remitting bank</b><span class="muted">The seller's bank that sends the collection.</span></div>
+      <div><b>Collecting bank</b><span class="muted">Any bank, other than the remitting bank, involved in processing.</span></div>
+      <div><b>Presenting bank</b><span class="muted">The collecting bank that presents to the buyer.</span></div>
+      <div><b>Drawee</b><span class="muted">The buyer, to whom documents are presented.</span></div>
+    </div>
+  </div>
+  <div class="block">
+    <h2>Key provisions</h2>
+    <div class="pts" id="urc-pts"></div>
+  </div>
+</section>
+
+<!-- ============ URR 725 ============ -->
+<section class="page" id="page-urr-725" hidden>
+  <div class="block band">
+    <a class="crumb"  href="/trade-finance" data-route="trade-finance">← Trade Finance</a>
+    <p class="eyebrow">URR 725 · Uniform Rules for Bank-to-Bank Reimbursements</p>
+    <h1>Bank reimbursements</h1>
+    <p class="lede">When a nominated bank pays under an LC, it often claims its money from a third bank, not the issuing bank. URR 725 governs that claim.</p>
+    <p class="srcnote">Based on ICC Publication No. 725 · Last reviewed October 2026</p>
+  </div>
+  <div class="flow-scroll">
+    <ol class="flow flow-3">
+      <li><span class="who">Issuing bank → Reimbursing bank</span><b>Authorisation</b><span class="muted">Issuing bank authorises the reimbursing bank to pay claims under the credit.</span></li>
+      <li><span class="who">Claiming bank → Reimbursing bank</span><b>Claim</b><span class="muted">After paying the beneficiary, the nominated bank sends its claim.</span></li>
+      <li><span class="who">Reimbursing bank → Claiming bank</span><b>Payment</b><span class="muted">Reimbursing bank pays and debits the issuing bank.</span></li>
+    </ol>
+  </div>
+  <div class="block">
+    <h2>Key provisions</h2>
+    <div class="pts" id="urr-pts"></div>
+  </div>
+</section>
+
+<!-- ============ INCOTERMS ============ -->
+<section class="page" id="page-incoterms" hidden>
+  <div class="block band">
+    <a class="crumb"  href="/trade-finance" data-route="trade-finance">← Trade Finance</a>
+    <p class="eyebrow">Incoterms® 2020 · ICC rules for the use of trade terms</p>
+    <h1>Delivery terms</h1>
+    <p class="lede">Eleven three-letter terms that settle who arranges transport and insurance, who clears customs, and where risk moves from seller to buyer. The term chosen shapes which documents the LC asks for.</p>
+    <p class="srcnote">Based on ICC Incoterms® 2020 · Last reviewed October 2026</p>
+  </div>
+  <div class="rset">
+    <div class="rcard"><span class="rcode">7 terms</span><h3>Any mode of transport</h3><p class="muted">EXW, FCA, CPT, CIP, DAP, DPU, DDP. Use these for containers and multimodal shipments.</p></div>
+    <div class="rcard"><span class="rcode">4 terms</span><h3>Sea and inland waterway only</h3><p class="muted">FAS, FOB, CFR, CIF. Best for bulk cargo loaded directly onto a vessel.</p></div>
+  </div>
+  <div class="block">
+    <h2>Terms and the LC documents that usually go with them</h2>
+    <div class="table-scroll"><table>
+      <thead><tr><th>Term</th><th>Risk passes to buyer</th><th>Seller pays main freight</th><th>Seller insures</th><th>Typical LC transport / insurance documents</th></tr></thead>
+      <tbody id="inco-docs"></tbody>
+    </table></div>
+    <p class="hint">Under FCA, the parties can agree that the buyer's carrier issues an on-board bill of lading to the seller, which helps when an LC requires one.</p>
+  </div>
+</section>
+
+<!-- ============ ISP98 ============ -->
+<section class="page" id="page-isp98" hidden>
+  <div class="block band">
+    <a class="crumb"  href="/trade-finance" data-route="trade-finance">← Trade Finance</a>
+    <p class="eyebrow">ISP98 · International Standby Practices</p>
+    <h1>Standby credits</h1>
+    <p class="lede">A standby LC works like a guarantee: the bank pays only if the applicant fails to perform. UCP 600 can apply to standbys, but ISP98 was written specifically for them.</p>
+    <p class="srcnote">Based on ICC Publication No. 590 · Last reviewed October 2026</p>
+  </div>
+  <div class="rset">
+    <div class="rcard"><h3>Where standbys are used</h3><p class="muted">Common in the US and in cross-border lending, where banks there have traditionally issued standbys instead of guarantees. Used to back loan repayment, performance, advance payments and trade payables.</p></div>
+    <div class="rcard"><h3>Why separate rules</h3><p class="muted">Many UCP 600 articles deal with shipping documents that a standby never sees. ISP98 deals directly with demands, statements of default and the realities of standby practice.</p></div>
+  </div>
+  <div class="block"><h2>Key provisions</h2><div class="pts" id="isp-pts"></div></div>
+</section>
+
+<!-- ============ eUCP ============ -->
+<section class="page" id="page-eucp" hidden>
+  <div class="block band">
+    <a class="crumb"  href="/trade-finance" data-route="trade-finance">← Trade Finance</a>
+    <p class="eyebrow">eUCP Version 2.1 · Supplement to UCP 600</p>
+    <h1>Electronic presentation</h1>
+    <p class="lede">The eUCP adds rules for presenting electronic records, alone or together with paper documents, under a credit subject to UCP 600.</p>
+    <p class="srcnote">Based on the ICC eUCP Version 2.1 · Last reviewed October 2026</p>
+  </div>
+  <div class="rset">
+    <div class="rcard"><h3>How it works with UCP 600</h3><p class="muted">The credit must state that it is subject to the eUCP. UCP 600 still applies, and the eUCP adds or adjusts rules where electronic records are involved. Where they conflict, the eUCP prevails.</p></div>
+    <div class="rcard"><h3>Why it matters</h3><p class="muted">Electronic bills of lading and digital trade platforms are growing. Banks and exporters need clear rules on when an electronic presentation is complete and what happens if a record cannot be read.</p></div>
+  </div>
+  <div class="block"><h2>Key points</h2><div class="pts" id="eucp-pts"></div></div>
+</section>
+
+<!-- ============ CASE STUDIES ============ -->
+<section class="page" id="page-case-studies" hidden>
+  <div class="block band">
+    <a class="crumb"  href="/trade-finance" data-route="trade-finance">← Trade Finance</a>
+    <p class="eyebrow">Practice</p>
+    <h1>Case studies</h1>
+    <p class="lede">Situations that come up at the trade finance desk. Read the facts, decide for yourself, then tap to see the answer and the rule behind it.</p>
+  </div>
+  <div class="cases" id="case-list"></div>
+</section>
+
+<!-- ============ GLOSSARY ============ -->
+<section class="page" id="page-glossary" hidden>
+  <div class="block band">
+    <a class="crumb"  href="/trade-finance" data-route="trade-finance">← Trade Finance</a>
+    <p class="eyebrow">Reference</p>
+    <h1>Glossary</h1>
+    <p class="lede">Quick definitions of the terms used across these pages.</p>
+  </div>
+  <dl class="gloss" id="gloss-list"></dl>
+</section>
+
+<!-- ============ TOOLS ============ -->
+<section class="page" id="page-tools" hidden>
+  <div class="block band">
+    <p class="eyebrow">Calculators &amp; Tools</p>
+    <h1>Small tools for everyday finance</h1>
+    <p class="lede">Quick calculators for home loans, letters of credit and savings. Figures are estimates; your bank's terms decide the final numbers.</p>
+  </div>
+  <div class="tf-group">
+    <div class="grp-label"><span>Home loans</span></div>
+    <div class="bento tf-bento">
+      <a class="t t-rule t-feature" href="/tool-emi" data-route="tool-emi"><p class="eyebrow">Most used</p><h2>EMI calculator</h2><p class="muted">Monthly instalment, total interest and a year-wise repayment schedule.</p><span class="go">Calculate EMI →</span></a>
+      <a class="t t-rule" href="/tool-elig" data-route="tool-elig"><h3>Loan eligibility</h3><p class="muted">How much you may be able to borrow on your income.</p><span class="go">Open →</span></a>
+      <a class="t t-rule" href="/tool-prepay" data-route="tool-prepay"><h3>Prepayment savings</h3><p class="muted">Interest saved and years cut by a lump-sum prepayment.</p><span class="go">Open →</span></a>
+    </div>
+  </div>
+  <div class="tf-group">
+    <div class="grp-label"><span>Trade finance</span></div>
+    <div class="bento tf-bento">
+      <a class="t t-rule t-feature t-feature-2" href="/tool-lc" data-route="tool-lc"><p class="eyebrow">UCP 600 Art. 14, 16, 29</p><h2>LC date calculator</h2><p class="muted">Last day to present, examination deadline and a shipment date check, with Indian bank holidays.</p><span class="go">Check dates →</span></a>
+      <a class="t t-rule" href="/tool-usance" data-route="tool-usance"><h3>Usance bill maturity</h3><p class="muted">Due date for 30, 60, 90 or 180 days from B/L or after sight.</p><span class="go">Open →</span></a>
+      <a class="t t-rule t-ref" href="/incoterms" data-route="incoterms"><p class="eyebrow">Reference</p><h3>Incoterms &amp; UCP 600</h3><p class="muted">Now in the Trade Finance section.</p><span class="go">Go to Trade Finance →</span></a>
+    </div>
+  </div>
+  <div class="tf-group">
+    <div class="grp-label"><span>Savings and loans</span></div>
+    <div class="bento tf-bento">
+      <a class="t t-rule" href="/tool-sip" data-route="tool-sip"><h3>SIP calculator</h3><p class="muted">Estimated value of a monthly investment.</p><span class="go">Open →</span></a>
+      <a class="t t-rule" href="/tool-fd" data-route="tool-fd"><h3>Fixed deposit</h3><p class="muted">Maturity value with quarterly compounding.</p><span class="go">Open →</span></a>
+      <a class="t t-rule t-wide" href="/tool-cmp" data-route="tool-cmp"><h3>Compare loan offers</h3><p class="muted">Two offers side by side: EMI and total cost including fees.</p><span class="go">Open →</span></a>
+    </div>
+  </div>
+</section>
+
+<section class="page" id="page-tool-emi" hidden>
+  <div class="block band">
+    <a class="crumb" href="/tools" data-route="tools">← Tools</a>
+    <p class="eyebrow">Home loans</p>
+    <h1>EMI calculator</h1>
+    <p class="lede">Your monthly instalment, how much interest you pay over the loan, and how it splits year by year.</p>
+  </div>
+  <div class="panel">
+<div class="calc">
+      <div class="inputs">
+        <div class="field"><label for="emi-p">Loan amount (₹)</label><input id="emi-p" class="money" type="text" inputmode="numeric" value="4,000,000" data-range="100000|20000000|50000"><span class="words" id="emi-p-w"></span></div>
+        <div class="row2">
+          <div class="field"><label for="emi-r">Interest rate (% p.a.)</label><input id="emi-r" type="number" value="8.5" step="0.05" data-range="6|15|0.05"></div>
+          <div class="field"><label for="emi-n">Tenure (years)</label><input id="emi-n" type="number" value="20" min="1" max="40" data-range="1|30|1"></div>
+        </div>
+        <p class="hint">Sample figures shown. Change any value to recalculate.</p>
+      </div>
+      <div class="results">
+        <span class="muted">Monthly EMI</span>
+        <div class="big" id="emi-out">–</div>
+        <div class="split"><i id="emi-bar"></i></div>
+        <div class="legend"><span><b style="background:var(--accent)"></b>Principal</span><span><b style="background:#2A3B5C"></b>Interest</span></div>
+        <div class="kv"><span>Total interest</span><span id="emi-int">–</span></div>
+        <div class="kv"><span>Total payable</span><span id="emi-tot">–</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="block">
+    <h2>Year-wise repayment</h2>
+    <p class="muted">How each year's payments split between principal and interest. Early years go mostly to interest.</p>
+    <div class="chart-wrap"><svg id="emi-chart" role="img" aria-label="Principal and interest paid each year"></svg></div>
+    <div class="legend legend-l"><span><b style="background:var(--accent)"></b>Principal</span><span><b style="background:var(--navy)"></b>Interest</span></div>
+    <div class="table-scroll sched"><table><thead><tr><th>Year</th><th>Principal paid</th><th>Interest paid</th><th>Closing balance</th></tr></thead><tbody id="emi-sched"></tbody></table></div>
+  </div>
+</section>
+
+<section class="page" id="page-tool-elig">
+  <div class="block band">
+    <a class="crumb" href="/tools" data-route="tools">← Tools</a>
+    <p class="eyebrow">Home loans</p>
+    <h1>Loan eligibility</h1>
+    <p class="lede">An estimate of the loan your income can support. Banks also look at your credit history, age and the property value.</p>
+  </div>
+  <div class="panel">
+<div class="calc">
+      <div class="inputs">
+        <div class="field"><label for="el-inc">Net monthly income (₹)</label><input id="el-inc" class="money" type="text" inputmode="numeric" value="120,000" data-range="10000|1000000|5000"><span class="words" id="el-inc-w"></span></div>
+        <div class="field"><label for="el-ex">Existing EMIs per month (₹)</label><input id="el-ex" class="money" type="text" inputmode="numeric" value="10,000"><span class="words" id="el-ex-w"></span></div>
+        <div class="row2">
+          <div class="field"><label for="el-r">Interest rate (% p.a.)</label><input id="el-r" type="number" value="8.5" step="0.05"></div>
+          <div class="field"><label for="el-n">Tenure (years)</label><input id="el-n" type="number" value="20"></div>
+        </div>
+        <div class="field"><label for="el-f">Share of income for EMIs (%)</label><input id="el-f" type="number" value="50" min="10" max="80"></div>
+        <p class="hint">Banks commonly allow 40–60% of net income towards all EMIs, depending on income level.</p>
+      </div>
+      <div class="results">
+        <span class="muted">You may be eligible for about</span>
+        <div class="big" id="el-out">–</div>
+        <div class="kv"><span>EMI you can afford</span><span id="el-emi">–</span></div>
+        <div class="kv"><span>Income left after all EMIs</span><span id="el-left">–</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="page" id="page-tool-prepay" hidden>
+  <div class="block band">
+    <a class="crumb" href="/tools" data-route="tools">← Tools</a>
+    <p class="eyebrow">Home loans</p>
+    <h1>Prepayment savings</h1>
+    <p class="lede">See how much interest a one-time prepayment saves if you keep paying the same EMI.</p>
+  </div>
+  <div class="panel">
+<div class="calc">
+      <div class="inputs">
+        <div class="field"><label for="pp-b">Outstanding loan (₹)</label><input id="pp-b" class="money" type="text" inputmode="numeric" value="3,500,000"><span class="words" id="pp-b-w"></span></div>
+        <div class="row2">
+          <div class="field"><label for="pp-r">Interest rate (% p.a.)</label><input id="pp-r" type="number" value="8.5" step="0.05"></div>
+          <div class="field"><label for="pp-n">Remaining tenure (years)</label><input id="pp-n" type="number" value="18"></div>
+        </div>
+        <div class="field"><label for="pp-x">One-time prepayment (₹)</label><input id="pp-x" class="money" type="text" inputmode="numeric" value="500,000" data-range="0|5000000|25000"><span class="words" id="pp-x-w"></span></div>
+        <p class="hint">Assumes you keep paying the same EMI, so the tenure shortens.</p>
+      </div>
+      <div class="results">
+        <span class="muted">Interest you save</span>
+        <div class="big" id="pp-out">–</div>
+        <div class="kv"><span>Current EMI</span><span id="pp-emi">–</span></div>
+        <div class="kv"><span>Loan ends earlier by</span><span id="pp-time">–</span></div>
+        <div class="kv"><span>New remaining tenure</span><span id="pp-new">–</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="page" id="page-tool-lc" hidden>
+  <div class="block band">
+    <a class="crumb" href="/tools" data-route="tools">← Tools</a>
+    <p class="eyebrow">Trade finance</p>
+    <h1>LC date calculator</h1>
+    <p class="lede">Work out the last day to present documents, the bank's examination deadline, and whether shipment was in time.</p>
+  </div>
+  <div class="panel">
+<div class="calc">
+      <div class="inputs">
+        <div class="field"><label for="lc-lsd">Latest shipment date (field 44C)</label><input id="lc-lsd" type="date" value="2026-10-25"></div>
+        <div class="row2">
+          <div class="field"><label for="lc-ship">Shipment date</label><input id="lc-ship" type="date" value="2026-10-20"></div>
+          <div class="field"><label for="lc-exp">LC expiry date</label><input id="lc-exp" type="date" value="2026-11-15"></div>
+        </div>
+        <div class="row2">
+          <div class="field"><label for="lc-per">Presentation period (days)</label><input id="lc-per" type="number" value="21" min="1"></div>
+          <div class="field"><label for="lc-pres">Actual presentation date</label><input id="lc-pres" type="date" value="2026-11-06"></div>
+        </div>
+        <div class="field"><label for="lc-wk">Bank closed on</label>
+          <select id="lc-wk">
+            <option value="india" selected>Sundays, 2nd &amp; 4th Saturdays (India)</option>
+            <option value="satsun">Saturdays &amp; Sundays</option>
+            <option value="sun">Sundays only</option>
+          </select></div>
+        <div class="field"><label for="lc-hol">Bank holidays (one date per line, YYYY-MM-DD)</label><textarea id="lc-hol" style="min-height:80px">2026-11-08</textarea></div>
+        <p class="hint">If the LC is silent, UCP 600 Art. 14(c) sets 21 calendar days after shipment. Art. 29(a) moves a last day that falls on a bank holiday to the next banking day.</p>
+      </div>
+      <div class="results">
+        <span class="muted">Last day to present documents</span>
+        <div class="big" id="lc-last">–</div>
+        <div class="kv"><span>Shipment + presentation period</span><span id="lc-raw">–</span></div>
+        <div class="kv"><span>Which limit applies</span><span id="lc-which">–</span></div>
+        <div class="kv"><span>Examination deadline (5 banking days)</span><span id="lc-exam">–</span></div>
+        <div id="lc-status"></div>
+      </div>
+    </div>
+  </div>
+  <div class="block">
+    <h2>Timeline</h2>
+    <ol class="tline" id="lc-tline"></ol>
+  </div>
+</section>
+
+<section class="page" id="page-tool-usance" hidden>
+  <div class="block band">
+    <a class="crumb" href="/tools" data-route="tools">← Tools</a>
+    <p class="eyebrow">Trade finance</p>
+    <h1>Usance bill maturity</h1>
+    <p class="lede">The due date of a usance draft, adjusted for bank holidays at the place of payment.</p>
+  </div>
+  <div class="panel">
+<div class="calc">
+      <div class="inputs">
+        <div class="row2">
+          <div class="field"><label for="us-base">Tenor counted from</label>
+            <select id="us-base"><option>Bill of lading date</option><option>Shipment date</option><option>Invoice date</option><option>Date of acceptance (after sight)</option></select></div>
+          <div class="field"><label for="us-date">That date</label><input id="us-date" type="date" value="2026-10-20"></div>
+        </div>
+        <div class="field"><label for="us-days">Tenor (days)</label><input id="us-days" type="number" value="90" min="1" max="720"></div>
+        <div class="presets" id="us-presets"><button class="chip" data-days="30">30</button><button class="chip" data-days="60">60</button><button class="chip" data-days="90">90</button><button class="chip" data-days="120">120</button><button class="chip" data-days="180">180</button></div>
+        <div class="field"><label for="us-wk">Bank closed on (place of payment)</label>
+          <select id="us-wk"><option value="india" selected>Sundays, 2nd &amp; 4th Saturdays (India)</option><option value="satsun">Saturdays &amp; Sundays</option><option value="sun">Sundays only</option></select></div>
+        <div class="field"><label for="us-hol">Bank holidays (one date per line, YYYY-MM-DD)</label><textarea id="us-hol" style="min-height:70px">2027-01-26</textarea></div>
+        <p class="hint">Under ISBP, "from" and "after" a date both start counting on the following day, so 90 days from 20 October matures on 18 January. If maturity falls on a day the bank is closed, payment is due on the next banking day.</p>
+      </div>
+      <div class="results">
+        <span class="muted">Payment due on</span>
+        <div class="big" id="us-out">–</div>
+        <div class="kv"><span>Calendar maturity date</span><span id="us-mat">–</span></div>
+        <div class="kv"><span>Counted from</span><span id="us-from">–</span></div>
+        <div class="kv"><span>Tenor</span><span id="us-ten">–</span></div>
+        <div id="us-status"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="page" id="page-tool-sip" hidden>
+  <div class="block band">
+    <a class="crumb" href="/tools" data-route="tools">← Tools</a>
+    <p class="eyebrow">Savings and loans</p>
+    <h1>SIP calculator</h1>
+    <p class="lede">One possible outcome of a monthly investment at a steady rate of return.</p>
+  </div>
+  <div class="panel">
+<div class="calc">
+      <div class="inputs">
+        <div class="field"><label for="sip-p">Monthly investment (₹)</label><input id="sip-p" class="money" type="text" inputmode="numeric" value="10,000" data-range="500|200000|500"><span class="words" id="sip-p-w"></span></div>
+        <div class="row2">
+          <div class="field"><label for="sip-r">Expected return (% p.a.)</label><input id="sip-r" type="number" value="12" step="0.5" data-range="1|20|0.5"></div>
+          <div class="field"><label for="sip-n">Period (years)</label><input id="sip-n" type="number" value="15" data-range="1|40|1"></div>
+        </div>
+        <p class="hint">Returns from market-linked funds are not guaranteed. This shows one possible outcome at a steady rate.</p>
+      </div>
+      <div class="results">
+        <span class="muted">Estimated value</span>
+        <div class="big" id="sip-out">–</div>
+        <div class="split"><i id="sip-bar"></i></div>
+        <div class="legend"><span><b style="background:var(--accent)"></b>Invested</span><span><b style="background:#2A3B5C"></b>Estimated gains</span></div>
+        <div class="kv"><span>Total invested</span><span id="sip-inv">–</span></div>
+        <div class="kv"><span>Estimated gains</span><span id="sip-gain">–</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="page" id="page-tool-fd" hidden>
+  <div class="block band">
+    <a class="crumb" href="/tools" data-route="tools">← Tools</a>
+    <p class="eyebrow">Savings and loans</p>
+    <h1>Fixed deposit</h1>
+    <p class="lede">Maturity value of a cumulative deposit with quarterly compounding.</p>
+  </div>
+  <div class="panel">
+<div class="calc">
+      <div class="inputs">
+        <div class="field"><label for="fd-p">Deposit amount (₹)</label><input id="fd-p" class="money" type="text" inputmode="numeric" value="500,000" data-range="10000|10000000|10000"><span class="words" id="fd-p-w"></span></div>
+        <div class="row2">
+          <div class="field"><label for="fd-r">Interest rate (% p.a.)</label><input id="fd-r" type="number" value="7" step="0.05" data-range="3|10|0.05"></div>
+          <div class="field"><label for="fd-n">Period (years)</label><input id="fd-n" type="number" value="5" step="0.25"></div>
+        </div>
+        <p class="hint">Uses quarterly compounding, the usual practice for cumulative deposits in India. Tax not deducted.</p>
+      </div>
+      <div class="results">
+        <span class="muted">Maturity value</span>
+        <div class="big" id="fd-out">–</div>
+        <div class="kv"><span>Interest earned</span><span id="fd-int">–</span></div>
+        <div class="kv"><span>Effective annual yield</span><span id="fd-yield">–</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="page" id="page-tool-cmp" hidden>
+  <div class="block band">
+    <a class="crumb" href="/tools" data-route="tools">← Tools</a>
+    <p class="eyebrow">Savings and loans</p>
+    <h1>Compare loan offers</h1>
+    <p class="lede">Put two loan offers side by side to see which costs less over the full tenure.</p>
+  </div>
+  <div class="panel">
+<div class="block">
+      <div class="field" style="max-width:320px"><label for="cmp-p">Loan amount (₹)</label><input id="cmp-p" class="money" type="text" inputmode="numeric" value="3,000,000"><span class="words" id="cmp-p-w"></span></div>
+      <div class="cmp">
+        <fieldset><legend>Offer A</legend>
+          <div class="row2"><div class="field"><label for="a-r">Rate (%)</label><input id="a-r" type="number" value="8.4" step="0.05"></div>
+          <div class="field"><label for="a-n">Tenure (yrs)</label><input id="a-n" type="number" value="20"></div></div>
+          <div class="field"><label for="a-f">Processing fee (₹)</label><input id="a-f" class="money" type="text" inputmode="numeric" value="10,000"><span class="words" id="a-f-w"></span></div>
+          <div class="kv"><span>EMI</span><span id="a-emi">–</span></div>
+          <div class="kv"><span>Total cost (interest + fee)</span><span id="a-tot">–</span></div>
+        </fieldset>
+        <fieldset><legend>Offer B</legend>
+          <div class="row2"><div class="field"><label for="b-r">Rate (%)</label><input id="b-r" type="number" value="8.25" step="0.05"></div>
+          <div class="field"><label for="b-n">Tenure (yrs)</label><input id="b-n" type="number" value="20"></div></div>
+          <div class="field"><label for="b-f">Processing fee (₹)</label><input id="b-f" class="money" type="text" inputmode="numeric" value="30,000"><span class="words" id="b-f-w"></span></div>
+          <div class="kv"><span>EMI</span><span id="b-emi">–</span></div>
+          <div class="kv"><span>Total cost (interest + fee)</span><span id="b-tot">–</span></div>
+        </fieldset>
+      </div>
+      <div id="cmp-verdict"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ BLOG ============ -->
+<section class="page" id="page-blog" hidden>
+  <div class="soon band">
+    <span class="stamp">Coming soon</span>
+    <h1>The blog is on its way</h1>
+    <p class="lede">I'll be writing short, practical pieces on trade finance, home loans and personal finance. Here's what's planned first.</p>
+  </div>
+  <ul class="planned">
+    <li><span>Reading an MT700 field by field</span><span>Trade finance</span></li>
+    <li><span>Why the 21-day rule catches exporters out</span><span>Trade finance</span></li>
+    <li><span>How banks really work out your home loan eligibility</span><span>Home loans</span></li>
+    <li><span>Prepay the loan or invest the money?</span><span>Personal finance</span></li>
+  </ul>
+  <div class="cta-row" style="justify-content:center"><a class="btn ghost"  href="/contact" data-route="contact">Suggest a topic</a></div>
+</section>
+
+</main>
+
+<footer class="site-foot">
+  <div class="wrap foot-grid">
+    <div class="foot-brand">
+      <a class="brand" href="/" data-route="home"><span class="mono-mark">MC</span>Mukul Chopra</a>
+      <p>Banker · Finance professional · Trade finance enthusiast</p>
+      <div class="foot-social">
+        <a href="https://www.linkedin.com/in/mukul-chopra-322913187" target="_blank" rel="noopener" aria-label="LinkedIn"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M4.98 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5zM3 9.5h4V21H3zM9.5 9.5h3.8v1.6h.1c.5-1 1.8-2 3.8-2 4 0 4.8 2.6 4.8 6V21h-4v-5.2c0-1.2 0-2.9-1.8-2.9s-2 1.4-2 2.8V21h-4z"/></svg></a>
+        <a href="https://www.instagram.com/mukul.chopra1/" target="_blank" rel="noopener" aria-label="Instagram"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor"/></svg></a>
+      </div>
+    </div>
+    <nav class="foot-col" aria-label="Site">
+      <h4>Site</h4>
+      <a href="/" data-route="home">Home</a>
+      <a href="/trade-finance" data-route="trade-finance">Trade Finance</a>
+      <a href="/tools" data-route="tools">Tools</a>
+      <a href="/blog" data-route="blog">Blog</a>
+      <a href="/contact" data-route="contact">Contact</a>
+    </nav>
+    <nav class="foot-col" aria-label="Trade finance">
+      <h4>Trade finance</h4>
+      <a href="/ucp-600" data-route="ucp-600">UCP 600</a>
+      <a href="/isbp-821" data-route="isbp-821">ISBP 821</a>
+      <a href="/urdg-758" data-route="urdg-758">URDG 758</a>
+      <a href="/incoterms" data-route="incoterms">Incoterms 2020</a>
+      <a href="/case-studies" data-route="case-studies">Case studies</a>
+    </nav>
+    <nav class="foot-col" aria-label="Tools">
+      <h4>Tools</h4>
+      <a href="/tool-emi" data-route="tool-emi">EMI calculator</a>
+      <a href="/tool-elig" data-route="tool-elig">Loan eligibility</a>
+      <a href="/tool-lc" data-route="tool-lc">LC date calculator</a>
+      <a href="/tool-usance" data-route="tool-usance">Usance bill maturity</a>
+    </nav>
+  </div>
+  <div class="wrap foot-base"><span>© 2026 Mukul Chopra · Delhi, India</span><span>Last updated October 2026</span></div>
+</footer>
+<script src="/site.js"></script>
+</body>
+</html>
