@@ -377,6 +377,7 @@ input.slider::-moz-range-thumb{width:16px;height:16px;border-radius:50%;backgrou
 .im-explain .im-risk-line b{color:var(--accent)}
 .im-swipe{display:none}
 @media (max-width:860px){.im-swipe{display:block;margin-top:-8px}.im-row{grid-template-columns:120px repeat(8,minmax(76px,1fr))}.im-term span{display:none}}
+.tf-bento .t-inco .rcode{font-size:1.05rem;padding:6px 12px;border-radius:9px}
 /* contact */
 .contact{display:grid;grid-template-columns:1fr 1.3fr;gap:32px;background:var(--navy);color:var(--navy-ink);border-radius:20px;padding:36px}
 .contact .eyebrow{color:var(--accent)}
