@@ -266,7 +266,155 @@ $("ucp-nums").innerHTML=KEYNUMS.map(n=>`<div class="num"><div class="num-big">${
 const ptsHTML=arr=>arr.map(p=>`<div class="pt"><span class="ref">${esc(p[0])}</span><h3>${esc(p[1])}</h3><p class="muted">${esc(p[2])}</p></div>`).join("");
 $("isp-pts").innerHTML=ptsHTML(ISP);$("eucp-pts").innerHTML=ptsHTML(EUCP);
 $("case-list").innerHTML=CASES.map((c,i)=>`<div class="case"><span class="ref">Case ${i+1}</span><h3>${esc(c[0])}</h3><p>${esc(c[1])}</p><p class="case-q">Discrepant or not?</p><details class="reveal"><summary>Show the answer</summary><div class="ans"><span class="verdict ${c[2]==="Discrepant"?"v-bad":"v-ok"}">${esc(c[2])}</span><p class="muted">${artify(esc(c[3]))}</p></div></details></div>`).join("");
-$("isbp-pts").innerHTML=ptsHTML(ISBP);$("urdg-pts").innerHTML=ptsHTML(URDG);$("urc-pts").innerHTML=ptsHTML(URC);$("urr-pts").innerHTML=ptsHTML(URR);
+/* ---------- URC 522 and URDG 758 article data ---------- */
+const URC_GROUPS=[
+ ["gen","General provisions and definitions","1–4"],
+ ["form","Form and structure of collections","5–8"],
+ ["liab","Liabilities and responsibilities","9–15"],
+ ["pay","Payment","16–19"],
+ ["int","Interest, charges and expenses","20–21"],
+ ["oth","Other provisions","22–26"]
+];
+const URC_ARTS=[
+ ["1","Application of URC 522","gen","The rules apply to every collection whose collection instruction says it is subject to URC 522, and bind all parties unless they agree otherwise or local law says otherwise. A bank does not have to handle a collection, but if it decides not to, it must tell the party that sent it without delay."],
+ ["2","Definition of collection","gen","A collection is the handling of documents by banks, following instructions, to obtain payment or acceptance, or to deliver documents against payment, acceptance or other terms. Financial documents are bills of exchange, promissory notes, cheques and similar; commercial documents are invoices, transport documents and the like. A clean collection covers financial documents alone. A documentary collection covers financial documents with commercial documents, or commercial documents without any financial document."],
+ ["3","Parties to a collection","gen","The principal (usually the exporter) entrusts the collection to its bank. The remitting bank sends it on. A collecting bank is any bank other than the remitting bank that handles it. The presenting bank is the collecting bank that presents the documents to the drawee, the party (usually the buyer) to whom presentation is made."],
+ ["4","Collection instruction","gen","Every set of documents must travel with a collection instruction that says it is subject to URC 522 and gives complete and precise instructions. Banks act only on those instructions and do not look into the documents to find instructions. The instruction should cover the parties, the drawee's full address, amount and currency, documents enclosed, terms of payment or acceptance, charges, interest, method of payment and what to do on non-payment or non-acceptance."],
+ ["5","Presentation","form","Presentation means making the documents available to the drawee as instructed. Documents go to the drawee in the form received, though banks may add stamps and endorsements needed for the collection. If the principal names a collecting bank, the remitting bank uses it; otherwise it may choose one."],
+ ["6","Sight and acceptance","form","For documents payable at sight, the presenting bank presents for payment without delay. For documents payable at a later date, it presents for acceptance without delay where acceptance is called for, and presents for payment no later than the maturity date."],
+ ["7","Release of commercial documents","form","A collection should not include a bill of exchange payable at a future date together with an instruction to release documents against payment. If it does, the instruction must say clearly whether documents are released against acceptance (D/A) or payment (D/P). If it does not say, documents are released only against payment, and the collecting bank is not responsible for any delay this causes."],
+ ["8","Creation of documents","form","If the remitting bank asks the collecting bank or the drawee to create documents that are not in the collection, such as bills of exchange, trust receipts or letters of undertaking, the remitting bank must supply their form and wording. Otherwise the collecting bank is not responsible for the documents created."],
+ ["9","Good faith and reasonable care","liab","Banks must act in good faith and exercise reasonable care."],
+ ["10","Documents v. goods, services or performances","liab","Goods should not be sent directly to a bank or consigned to its order without the bank first agreeing. If they are, the bank has no duty to take delivery and the goods stay at the sender's risk. Banks have no duty to protect the goods; if they do act to protect them, they take no liability, and any costs fall on the party that sent the collection."],
+ ["11","Disclaimer for acts of an instructed party","liab","A bank that uses another bank to carry out the principal's instructions does so for the principal's account and risk, even if it chose that other bank itself. The party giving instructions must indemnify the banks against obligations imposed by foreign laws and usages."],
+ ["12","Disclaimer on documents received","liab","Banks must check only that the documents received appear to be as listed in the collection instruction, and must tell the sender without delay if any are missing or different. They have no further duty to examine the documents. If the remitting bank does not hear of a difference, it cannot later dispute what the collecting bank received."],
+ ["13","Disclaimer on effectiveness of documents","liab","Banks are not responsible for the form, accuracy, genuineness or legal effect of any document, nor for the description, quantity, condition or value of the goods, nor for the good faith or acts of anyone else involved."],
+ ["14","Disclaimer on delays, loss in transit and translation","liab","Banks are not liable for delay or loss of messages, letters or documents in transit, nor for translation errors. They are also not liable for delays caused by the need to get clarification of instructions they have received."],
+ ["15","Force majeure","liab","Banks are not liable for consequences of interruptions to their business caused by events beyond their control, such as natural disasters, riots, war, terrorism or strikes."],
+ ["16","Payment without delay","pay","Amounts collected, less charges and expenses where applicable, must be made available without delay to the party that sent the collection instruction. Unless otherwise agreed, the collecting bank pays only the remitting bank."],
+ ["17","Payment in local currency","pay","For documents payable in the currency of the country of payment, the presenting bank releases documents against payment in that currency only if it can be used immediately as the collection instruction specifies, unless instructed otherwise."],
+ ["18","Payment in foreign currency","pay","For documents payable in another currency, the presenting bank releases documents against payment in that currency only if it can be remitted immediately as instructed, unless instructed otherwise."],
+ ["19","Partial payments","pay","In a clean collection, partial payments may be accepted where the law allows, but the financial documents are released only once paid in full. In a documentary collection, partial payments are accepted only if the instruction specifically allows them, and documents are released only after full payment, unless instructed otherwise."],
+ ["20","Interest","int","If interest is to be collected and the drawee refuses to pay it, the presenting bank may still release the documents against payment or acceptance without the interest, unless the instruction expressly says interest may not be waived. The instruction should state the rate, period and basis. If interest cannot be waived and the drawee refuses, the bank does not release the documents and informs the bank it received them from."],
+ ["21","Charges and expenses","int","If charges are for the drawee's account and the drawee refuses them, the presenting bank may release documents without collecting them, unless the instruction expressly says charges may not be waived. Waived charges fall on the principal and may be deducted from the proceeds. Banks may ask for advance payment of expected expenses."],
+ ["22","Acceptance","oth","The presenting bank must see that the form of acceptance on a bill of exchange appears complete and correct. It is not responsible for the genuineness of signatures or the authority of the person signing."],
+ ["23","Promissory notes and other instruments","oth","The presenting bank is not responsible for the genuineness of any signature, or the authority of any signatory, on a promissory note, receipt or other instrument."],
+ ["24","Protest","oth","The collection instruction should say whether to protest, or take other legal steps, on non-payment or non-acceptance. Without such instructions, banks have no duty to protest. Any protest fees are for the principal's account."],
+ ["25","Case-of-need","oth","If the principal names a representative to act if payment or acceptance is refused, the collection instruction should state that person's powers clearly. Without that, banks will not accept instructions from the case-of-need."],
+ ["26","Advices","oth","The collecting bank must advise payment, acceptance, non-payment or non-acceptance without delay, quoting the remitting bank's reference. On non-payment or non-acceptance, the presenting bank should try to find out why and report it. If it receives no instructions within 60 days of that advice, it may return the documents to the bank it received them from, with no further responsibility."]
+];
+const URC_KEY=[
+ ["D/P","by default","If the instruction does not say whether documents are released against payment or acceptance, they are released only against payment.","Art. 7"],
+ ["No","examination","Banks only check that the documents received match the list in the collection instruction. They do not examine what the documents say.","Art. 12"],
+ ["100%","before release","In a documentary collection, documents are released only after full payment, unless partial payments are specifically allowed.","Art. 19"],
+ ["Waivable","interest and charges","The presenting bank may release documents without collecting interest or charges, unless the instruction says they may not be waived.","Art. 20, 21"],
+ ["60","days","If no instructions arrive within 60 days of an advice of non-payment or non-acceptance, the documents may be sent back.","Art. 26"],
+ ["No","protest by default","Without clear instructions, banks have no duty to protest an unpaid or unaccepted bill.","Art. 24"]
+];
+
+const URDG_GROUPS=[
+ ["gen","General provisions","1–7"],
+ ["issue","Instructions, issue, advising and amendments","8–11"],
+ ["amt","Liability and amount","12–13"],
+ ["dem","Demands and examination","14–24"],
+ ["end","Reduction, termination and force majeure","25–26"],
+ ["disc","Disclaimers, indemnity and charges","27–32"],
+ ["law","Transfer, governing law and jurisdiction","33–35"]
+];
+const URDG_ARTS=[
+ ["1","Application of URDG","gen","The rules apply to a demand guarantee or counter-guarantee that expressly says it is subject to them, and bind all parties except where the guarantee changes or excludes them. Where a guarantee is issued subject to URDG at a counter-guarantor's request, the counter-guarantee is also subject to URDG unless it says otherwise. A guarantee issued on or after 1 July 2010 that names URDG without a version is subject to URDG 758."],
+ ["2","Definitions","gen","Defines the key terms: applicant, beneficiary, guarantor, counter-guarantor, instructing party, advising party, business day, demand, complying demand, presentation, supporting statement, expiry, expiry date and expiry event, among others. A business day is a day the place of business where the act is to be done is regularly open."],
+ ["3","Interpretation","gen","Branches of a guarantor in different countries count as separate entities. A requirement for originals or copies of an electronic document is met by one electronic document. In dates, \"from\", \"to\", \"until\", \"till\" and \"between\" include the date mentioned; \"before\" and \"after\" exclude it. Vague words such as \"first class\" or \"competent\" allow any issuer except the beneficiary or the applicant."],
+ ["4","Issue and effectiveness","gen","A guarantee is issued when it leaves the guarantor's control. It is irrevocable once issued, even if it does not say so. The beneficiary can present a demand from the date of issue, or from any later date or event the guarantee specifies."],
+ ["5","Independence of guarantee and counter-guarantee","gen","A guarantee is independent of the underlying contract and of the application to issue it; the guarantor is not concerned with or bound by them. Referring to the underlying contract for identification does not change this. The guarantor's promise to pay cannot be defeated by claims or defences arising from any relationship other than its own with the beneficiary. A counter-guarantee is likewise independent of the guarantee it supports."],
+ ["6","Documents v. goods, services or performance","gen","Guarantors deal with documents, not with the goods, services or performance the documents relate to."],
+ ["7","Non-documentary conditions","gen","A guarantee should not contain a condition, other than a date or a period, without stating a document that shows the condition has been met. If no document is stated and the guarantor cannot confirm the condition from its own records or an index named in the guarantee, the condition is disregarded."],
+ ["8","Content of instructions and guarantees","issue","Instructions and guarantees should be clear and precise and avoid excessive detail. A guarantee should state the applicant, beneficiary and guarantor, the underlying relationship, the maximum amount and currency, the expiry, the terms for demanding payment, the form and language of documents, and who pays charges."],
+ ["9","Application not taken up","issue","If a guarantor is not prepared or not able to issue a guarantee when it receives the application, it should tell the party that gave the instructions without delay."],
+ ["10","Advising of guarantee or amendment","issue","A guarantee can be advised to the beneficiary through an advising party. By advising it, that party confirms it is satisfied the guarantee appears authentic and that the advice reflects its terms accurately; it takes on no payment obligation. A party that will not advise, or cannot check authenticity, must say so without delay."],
+ ["11","Amendments","issue","An amendment does not bind the beneficiary without its agreement, but binds the guarantor from the moment it is issued unless and until the beneficiary rejects it. Partial acceptance of an amendment counts as rejection. A clause saying an amendment takes effect unless rejected within a set time is disregarded. The guarantor informs the instructing party of the beneficiary's acceptance or rejection without delay."],
+ ["12","Extent of guarantor's liability","amt","The guarantor is liable to the beneficiary only under the terms of the guarantee and these rules, and only up to the guarantee amount."],
+ ["13","Variation of amount of guarantee","amt","A guarantee may provide for its amount to reduce or increase on specified dates or events. Where an event triggers the change, it is treated as happening only when the document stated in the guarantee is presented, or when the guarantor can confirm it from its own records or an index named in the guarantee."],
+ ["14","Presentation","dem","A demand must be presented to the guarantor at the place of issue or another place stated in the guarantee, on or before expiry. A presentation can say it will be completed later, but must be completed before expiry. Electronic presentation is possible only if the guarantee allows it; otherwise presentation is on paper. Each presentation should identify the guarantee it relates to."],
+ ["15","Requirements for demand","dem","A demand must come with any documents the guarantee requires and, in any case, a supporting statement from the beneficiary saying in what respect the applicant is in breach of the underlying contract. Under a counter-guarantee, the demand must be supported by a statement that a complying demand has been received under the guarantee. These statements are required unless the guarantee expressly excludes them."],
+ ["16","Information about demand","dem","The guarantor must inform the instructing party, or the counter-guarantor, without delay of any demand and of any request to extend the expiry instead of paying."],
+ ["17","Partial and multiple demands","dem","A demand may be for less than the full amount, and more than one demand may be made unless the guarantee says otherwise. A demand for more than the amount available is not complying. If only one demand is allowed and it is rejected, the beneficiary may still present another demand before expiry."],
+ ["18","Separateness of each demand","dem","Making a non-complying demand, or withdrawing a demand, does not stop the beneficiary making another timely demand. Paying a non-complying demand does not waive the requirement that other demands must comply."],
+ ["19","Examination","dem","The guarantor decides, on the basis of the presentation alone, whether a demand appears on its face to be complying. Data in the demand and documents need not be identical but must not conflict with each other or the guarantee. Documents the guarantee does not ask for are disregarded and may be returned."],
+ ["20","Time for examination of demand; payment","dem","The guarantor has five business days following the day of presentation to examine a demand and decide whether it complies. Expiry after presentation does not shorten this time. If the demand complies, the guarantor must pay."],
+ ["21","Currency of payment","dem","Payment is made in the currency of the guarantee. If the guarantor cannot pay in that currency because of an impediment beyond its control, it pays in the currency of the place of payment."],
+ ["22","Transmission of copies of complying demand","dem","The guarantor must send a copy of the complying demand and related documents to the instructing party, or the counter-guarantor, without delay."],
+ ["23","Extend or pay","dem","Where a complying demand asks, as an alternative, for the expiry to be extended, the guarantor may suspend payment for up to 30 calendar days following receipt of the demand while the parties decide. If the extension is granted, the demand is treated as withdrawn. If it is not granted, the demand is paid without a further demand. The guarantor may refuse to extend even if instructed to, and then pays."],
+ ["24","Non-complying demand, waiver and notice","dem","A guarantor may reject a non-complying demand. It may ask the instructing party for a waiver, but this does not extend the examination time. A rejection must be a single notice, given no later than the close of the fifth business day following the day of presentation, listing each discrepancy. A guarantor that fails to do this cannot later claim the demand did not comply."],
+ ["25","Reduction and termination","end","The guarantee amount is reduced by payments made, partial releases and any reduction clause. A guarantee terminates on expiry, when nothing more is payable, or when the beneficiary presents a signed release. If a guarantee states neither an expiry date nor an expiry event, it terminates three years after issue, and a counter-guarantee terminates 30 calendar days after its guarantee. An expiry date falling on a non-business day at the place of presentation moves to the next business day."],
+ ["26","Force majeure","end","If force majeure prevents presentation or payment, a guarantee that would have expired during that time is extended by 30 calendar days from its original expiry. Examination of a demand already presented is suspended until the guarantor reopens, and a complying demand that could not be paid is paid once the force majeure ends."],
+ ["27","Disclaimer on effectiveness of documents","disc","Guarantors are not responsible for the form, accuracy, genuineness or legal effect of any document presented, nor for the good faith or acts of anyone who issued it."],
+ ["28","Disclaimer on transmission and translation","disc","Guarantors are not liable for delay, loss or errors in transmitting messages or documents, nor for errors in translation."],
+ ["29","Disclaimer for acts of another party","disc","A guarantor that uses another party to carry out the applicant's instructions does so for the applicant's account and risk."],
+ ["30","Limits on exemption from liability","disc","None of the disclaimers protect a guarantor from liability for failing to act in good faith."],
+ ["31","Indemnity for foreign laws and usages","disc","The applicant must indemnify the guarantor, and the counter-guarantor must indemnify the guarantor, against obligations imposed by foreign laws and usages."],
+ ["32","Liability for charges","disc","A party that asks another to perform services is liable for that party's charges. If the guarantee says charges are for the beneficiary and they cannot be collected, the instructing party remains liable. A guarantee should not make payment conditional on charges being paid."],
+ ["33","Transfer of guarantee and assignment of proceeds","law","A guarantee can be transferred only if it expressly says it is transferable, and then only for the full amount available at the time; it may be transferred more than once. A counter-guarantee is not transferable. The beneficiary may assign proceeds under applicable law, but the guarantor need not pay an assignee unless it has agreed."],
+ ["34","Governing law","law","Unless the guarantee says otherwise, it is governed by the law of the place of the guarantor's branch or office that issued it. A counter-guarantee is governed by the law of the place of the counter-guarantor's issuing branch or office."],
+ ["35","Jurisdiction","law","Unless the guarantee says otherwise, disputes go to the competent court of the country where the guarantor's issuing branch or office is located; for a counter-guarantee, the country of the counter-guarantor's issuing branch or office."]
+];
+const URDG_KEY=[
+ ["5","business days","Time to examine a demand, and the deadline for a single notice of rejection, counted from the day after presentation.","Art. 20, 24"],
+ ["30","calendar days","The longest a guarantor may suspend payment after an \"extend or pay\" demand.","Art. 23"],
+ ["3","years","When a guarantee has no expiry date or expiry event, it terminates three years after issue.","Art. 25"],
+ ["30","days after","A counter-guarantee with no expiry terminates 30 calendar days after its guarantee terminates.","Art. 25"],
+ ["+30","days","Extension of a guarantee that would have expired while force majeure prevented presentation or payment.","Art. 26"],
+ ["1","supporting statement","Every demand needs a statement of the applicant's breach, unless the guarantee expressly excludes it.","Art. 15"]
+];
+const URR_EXTRA=[
+ ["Reimbursement undertaking","An optional extra commitment","If the issuing bank asks and the reimbursing bank agrees, the reimbursing bank can give the claiming bank its own irrevocable undertaking to pay claims."],
+ ["Expiry","Authorisations should not expire","A reimbursement authorisation should not carry an expiry date or a latest date for claims, except where the reimbursing bank has given a reimbursement undertaking."],
+ ["Interest claims","Settled between the banks","A claim for loss of interest because of late reimbursement is a matter between the claiming bank and the issuing bank, unless the reimbursing bank has agreed otherwise."]
+];
+
+/* generic article renderer used by URC and URDG pages */
+function setupRuleArts(cfg){
+  const box=$(cfg.box),nav=$(cfg.nav),q=$(cfg.q),nums=$(cfg.nums);
+  if(!box||!nav||!q)return;
+  const card=a=>`<details class="art"><summary><span class="artno">Art. ${a[0]}</span><b>${esc(a[1])}</b></summary><div class="body">${esc(a[3])}</div></details>`;
+  const draw=t=>{t=(t||"").trim().toLowerCase();
+    const html=cfg.groups.map(g=>{const items=cfg.arts.filter(a=>a[2]===g[0]&&(!t||a[0]===t||("art "+a[0]+" "+a[1]+" "+a[3]).toLowerCase().includes(t)));
+      return items.length?`<div class="artgroup" id="${cfg.pre}-grp-${g[0]}"><div class="artgroup-h"><h3>${esc(g[1])}</h3><span class="muted">Articles ${g[2]}</span></div><div class="articles">${items.map(card).join("")}</div></div>`:"";}).join("");
+    box.innerHTML=html||`<p class="muted">No article matches "${esc(t)}".</p>`;};
+  nav.innerHTML=cfg.groups.map(g=>`<button class="chip" data-grp="${g[0]}">${esc(g[1])} <span class="muted">${g[2]}</span></button>`).join("");
+  nav.addEventListener("click",e=>{const b=e.target.closest("[data-grp]");if(!b)return;q.value="";draw("");const el=$(cfg.pre+"-grp-"+b.dataset.grp);if(el)try{el.scrollIntoView({block:"start"})}catch(_){}});
+  q.addEventListener("input",e=>draw(e.target.value));
+  draw("");
+  if(nums)nums.innerHTML=cfg.key.map(n=>`<div class="num"><div class="num-big">${esc(n[0])}</div><div class="num-unit">${esc(n[1])}</div><p class="muted">${esc(n[2])}</p><span class="ref">${esc(n[3])}</span></div>`).join("");
+}
+setupRuleArts({pre:"urc",box:"urc-arts",nav:"urc-groupnav",q:"urc-art-q",nums:"urc-nums",groups:URC_GROUPS,arts:URC_ARTS,key:URC_KEY});
+setupRuleArts({pre:"urdg",box:"urdg-arts",nav:"urdg-groupnav",q:"urdg-art-q",nums:"urdg-nums",groups:URDG_GROUPS,arts:URDG_ARTS,key:URDG_KEY});
+
+const URC_TIPS=[
+ ["Say D/P or D/A, clearly","State the release terms in the collection instruction. Avoid sending a usance bill with a D/P instruction; if you must, say so expressly.","Art. 7"],
+ ["Give the drawee's full address","Include the complete postal address, phone and email. Banks are not liable for delays caused by an incomplete address.","Art. 4"],
+ ["Never consign goods to the bank","Don't ship goods to the collecting bank or to its order without its prior agreement. The bank has no duty to take delivery, and the goods stay at your risk.","Art. 10"],
+ ["Decide on interest and charges","If interest or charges must not be waived, say so expressly. Otherwise the presenting bank may release documents without collecting them.","Art. 20, 21"],
+ ["Give protest instructions","If you want an unpaid or unaccepted bill protested, say so. Without instructions, banks have no duty to protest.","Art. 24"],
+ ["Name a case-of-need, or none","A local representative can help if the buyer refuses, but only if the instruction states their powers clearly.","Art. 25"],
+ ["Respond to non-payment advices","When the bank reports non-payment or non-acceptance, send instructions promptly. After 60 days without them, documents may come back.","Art. 26"],
+ ["Know your buyer","In a collection no bank promises to pay. Check the buyer's standing, and consider export credit insurance for D/A terms.",""],
+ ["Track export realisation","Keep an eye on the deadlines for realising export proceeds under RBI rules, and follow up overdue bills with your bank.",""]
+];
+const URDG_TIPS=[
+ ["Check the rules clause","If you expect URDG 758 to apply, make sure the guarantee says it is subject to URDG 758. Otherwise local law and the bank's own wording apply.","Art. 1"],
+ ["Always set an expiry","Give a clear expiry date or a documented expiry event. Without one, a URDG guarantee runs for three years.","Art. 25"],
+ ["Keep the wording independent","Refer to the contract only to identify it. Copying contract terms into the guarantee adds excessive detail and invites disputes.","Art. 5, 8"],
+ ["Avoid non-documentary conditions","If a condition matters, name the document that proves it. Otherwise the guarantor will disregard it.","Art. 7"],
+ ["Include the supporting statement","A beneficiary's demand must say in what respect the applicant is in breach, unless the guarantee excludes this.","Art. 15"],
+ ["Present early, at the right place","Present at the place stated, before expiry, and leave a margin. A presentation to be completed later must still be completed before expiry.","Art. 14"],
+ ["Plan for extend or pay","Applicants should be ready to decide quickly. The guarantor can hold payment for at most 30 calendar days.","Art. 23"],
+ ["Reject properly, or not at all","Guarantors: send one notice listing every discrepancy within five business days, or lose the right to reject.","Art. 24"],
+ ["Use reduction clauses","For advance payment guarantees, tie reductions to documents such as shipment or milestone certificates.","Art. 13"]
+];
+const tipsHTML=arr=>arr.map(t=>`<li><span class="tick" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg></span><div><b>${esc(t[0])}</b><p class="muted">${esc(t[1])}</p>${t[2]?`<span class="tip-ref">${esc(t[2])}</span>`:""}</div></li>`).join("");
+[["urc-tips",URC_TIPS],["urdg-tips",URDG_TIPS]].forEach(([id,d])=>{const el=$(id);if(el)el.innerHTML=tipsHTML(d)});
+[["isbp-pts",ISBP],["urr-pts",URR.concat(URR_EXTRA)]].forEach(([id,d])=>{const el=$(id);if(el)el.innerHTML=ptsHTML(d)});
 $("inco-docs").innerHTML=INCO.map(r=>`<tr><td class="term">${r[0]}<div class="muted" style="font-family:var(--body);font-weight:400;font-size:.82rem">${esc(r[1])}</div></td><td>${esc(r[3])}</td><td>${r[4]}</td><td>${esc(r[5])}</td><td>${esc(INCO_DOCS[r[0]])}</td></tr>`).join("");
 
 

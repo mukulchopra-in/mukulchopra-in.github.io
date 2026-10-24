@@ -378,6 +378,11 @@ input.slider::-moz-range-thumb{width:16px;height:16px;border-radius:50%;backgrou
 .im-swipe{display:none}
 @media (max-width:860px){.im-swipe{display:block;margin-top:-8px}.im-row{grid-template-columns:120px repeat(8,minmax(76px,1fr))}.im-term span{display:none}}
 .tf-bento .t-inco .rcode{font-size:1.05rem;padding:6px 12px;border-radius:9px}
+.note-in{margin:4px 0 0;padding:14px 16px;border-radius:12px;background:var(--surface);color:var(--muted);font-size:.92rem;max-width:80ch}
+#urc-nums,#urdg-nums{grid-template-columns:repeat(3,1fr)}
+@media (max-width:900px){#urc-nums,#urdg-nums{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:520px){#urc-nums,#urdg-nums{grid-template-columns:1fr}}
+.tip-ref{display:inline-block;margin-top:6px;font-family:var(--mono);font-size:.72rem;color:var(--accent-deep)}
 /* contact */
 .contact{display:grid;grid-template-columns:1fr 1.3fr;gap:32px;background:var(--navy);color:var(--navy-ink);border-radius:20px;padding:36px}
 .contact .eyebrow{color:var(--accent)}

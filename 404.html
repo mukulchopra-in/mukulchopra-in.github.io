@@ -20,7 +20,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap">
-<link rel="stylesheet" href="/site.css?v=7c7889d9">
+<link rel="stylesheet" href="/site.css?v=71f9babf">
 </head>
 <body>
 <div id="top-anchor" aria-hidden="true"></div>
@@ -321,7 +321,15 @@
     <h1>Demand guarantees</h1>
     <p class="lede">Rules for guarantees and counter-guarantees payable on a complying demand, such as performance, advance payment, bid and retention guarantees.</p>
     <p class="srcnote">Based on ICC Publication No. 758 · Last reviewed October 2026</p>
+    <div class="subnav" data-tabs="urdg">
+      <button class="chip" data-tab="ov" aria-pressed="true">Overview</button>
+      <button class="chip" data-tab="arts" aria-pressed="false">All 35 articles</button>
+      <button class="chip" data-tab="nums" aria-pressed="false">Key points</button>
+      <button class="chip" data-tab="tips" aria-pressed="false">Tips from practice</button>
+    </div>
   </div>
+  <div class="block" data-tabpanel="urdg:ov">
+  <h2>Guarantee or letter of credit?</h2>
   <div class="cmp-table table-scroll">
     <table class="compare">
       <thead><tr><th></th><th>Documentary credit (UCP 600)</th><th>Demand guarantee (URDG 758)</th></tr></thead>
@@ -333,9 +341,25 @@
       </tbody>
     </table>
   </div>
-  <div class="block">
-    <h2>Key provisions</h2>
-    <div class="pts" id="urdg-pts"></div>
+  <p class="note-in">In India, most bank guarantees are issued under Indian law in the bank's own format. URDG 758 applies only when the guarantee expressly says it is subject to it, which is common in international guarantees.</p>
+  </div>
+  <div class="block" data-tabpanel="urdg:arts" hidden>
+    <div class="arts-head">
+      <h2>All 35 articles</h2>
+      <div class="field arts-search"><label for="urdg-art-q">Search articles</label><input id="urdg-art-q" placeholder="Try 'extend', 'expiry' or '15'"></div>
+    </div>
+    <div class="subnav" id="urdg-groupnav"></div>
+    <div id="urdg-arts"></div>
+  </div>
+  <div class="block" data-tabpanel="urdg:nums" hidden>
+    <h2>Key points to remember</h2>
+    <p class="muted">The rules that matter most when a demand arrives.</p>
+    <div class="nums" id="urdg-nums"></div>
+  </div>
+  <div class="block" data-tabpanel="urdg:tips" hidden>
+    <h2>Drafting, presenting and handling demands</h2>
+    <p class="muted">Small drafting choices decide how a guarantee behaves when a demand arrives.</p>
+    <ul class="tips" id="urdg-tips"></ul>
   </div>
 </section>
 
@@ -347,13 +371,20 @@
     <h1>Documentary collections</h1>
     <p class="lede">Banks pass documents from seller to buyer and release them against payment or acceptance. Unlike an LC, no bank promises to pay.</p>
     <p class="srcnote">Based on ICC Publication No. 522 · Last reviewed October 2026</p>
+    <div class="subnav" data-tabs="urc">
+      <button class="chip" data-tab="ov" aria-pressed="true">Overview</button>
+      <button class="chip" data-tab="arts" aria-pressed="false">All 26 articles</button>
+      <button class="chip" data-tab="nums" aria-pressed="false">Key points</button>
+      <button class="chip" data-tab="tips" aria-pressed="false">Tips from practice</button>
+    </div>
   </div>
+  <div class="block" data-tabpanel="urc:ov">
+  <h2>Two ways to release documents</h2>
   <div class="rset">
     <div class="rcard"><span class="rcode">D/P</span><h3>Documents against payment</h3><p class="muted">The buyer gets the documents, and so the goods, only after paying. Usually at sight.</p></div>
     <div class="rcard"><span class="rcode">D/A</span><h3>Documents against acceptance</h3><p class="muted">The buyer gets the documents after accepting a bill of exchange to pay at a future date. The seller carries the credit risk until then.</p></div>
   </div>
-  <div class="block">
-    <h2>The parties</h2>
+  <h2 style="margin-top:20px">The parties</h2>
     <div class="parties">
       <div><b>Principal</b><span class="muted">The seller who hands documents to its bank.</span></div>
       <div><b>Remitting bank</b><span class="muted">The seller's bank that sends the collection.</span></div>
@@ -362,9 +393,23 @@
       <div><b>Drawee</b><span class="muted">The buyer, to whom documents are presented.</span></div>
     </div>
   </div>
-  <div class="block">
-    <h2>Key provisions</h2>
-    <div class="pts" id="urc-pts"></div>
+  <div class="block" data-tabpanel="urc:arts" hidden>
+    <div class="arts-head">
+      <h2>All 26 articles</h2>
+      <div class="field arts-search"><label for="urc-art-q">Search articles</label><input id="urc-art-q" placeholder="Try 'D/P', 'protest' or '7'"></div>
+    </div>
+    <div class="subnav" id="urc-groupnav"></div>
+    <div id="urc-arts"></div>
+  </div>
+  <div class="block" data-tabpanel="urc:nums" hidden>
+    <h2>Key points to remember</h2>
+    <p class="muted">The rules that settle most questions on a collection.</p>
+    <div class="nums" id="urc-nums"></div>
+  </div>
+  <div class="block" data-tabpanel="urc:tips" hidden>
+    <h2>Before you send a collection</h2>
+    <p class="muted">Most collection problems start with an unclear instruction. These checks avoid them.</p>
+    <ul class="tips" id="urc-tips"></ul>
   </div>
 </section>
 
@@ -822,7 +867,7 @@
   </div>
   <div class="wrap foot-base"><span>© 2026 Mukul Chopra · Delhi, India</span><span>Last updated October 2026</span></div>
 </footer>
-<script src="/site.js?v=26210c0a"></script>
+<script src="/site.js?v=04841c9a"></script>
 <script>document.title="Page not found · Mukul Chopra";</script>
 </body>
 </html>
