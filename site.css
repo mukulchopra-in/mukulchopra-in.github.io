@@ -332,6 +332,51 @@ input.slider::-moz-range-thumb{width:16px;height:16px;border-radius:50%;backgrou
 .certs span{font-weight:600;font-size:.95rem;line-height:1.35}
 @media (max-width:900px){.t-certs{grid-column:span 2}}
 .contact-photo{width:112px;height:112px;border-radius:50%;object-fit:cover;object-position:50% 50%;border:3px solid var(--accent)}
+.t-stat{align-content:space-between}
+.stat-sub{margin:8px 0 0;font-size:.82rem;font-weight:700;opacity:.8}
+.t-certs{display:flex;flex-direction:column}
+.cert-note{margin:auto 0 0;padding-top:10px;font-size:.78rem;color:var(--muted)}
+
+/* ---- Incoterms map ---- */
+.im-legend{display:flex;flex-wrap:wrap;gap:10px 22px;font-size:.88rem;color:var(--fg);font-weight:600}
+.im-legend span{display:inline-flex;align-items:center;gap:8px}
+.im-legend i{font-style:normal;flex:none}
+.lg{display:inline-block;width:22px;height:14px;border-radius:4px}
+.lg-s{background:var(--accent)}.lg-b{background:#DCE2EA}
+.lg-risk{display:inline-block;width:12px;height:12px;background:var(--navy);transform:rotate(45deg);margin:0 2px;border:2px solid #fff;box-shadow:0 0 0 1px var(--navy)}
+.lg-ins{font-family:var(--mono);font-size:.62rem;font-weight:500;color:var(--navy);background:#fff;border:1px solid var(--navy);border-radius:4px;padding:1px 4px}
+.im-scroll{overflow-x:auto;border:1px solid var(--line);border-radius:var(--radius);background:var(--card);-webkit-overflow-scrolling:touch}
+.im{min-width:820px;display:grid}
+.im-row{display:grid;grid-template-columns:170px repeat(8,minmax(72px,1fr));align-items:stretch;border:0;background:none;padding:0;margin:0;font:inherit;color:inherit;text-align:left;width:100%}
+.im-head{border-bottom:1px solid var(--line);background:var(--surface)}
+.im-term{position:sticky;left:0;z-index:2;background:var(--card);padding:10px 14px;display:grid;gap:1px;align-content:center;border-right:1px solid var(--line)}
+.im-head .im-term{background:var(--surface)}
+.im-term b{font-family:var(--mono);font-weight:500;color:var(--accent-deep);font-size:.95rem}
+.im-term span{font-size:.78rem;color:var(--muted);line-height:1.25}
+.im-stage{padding:10px 6px;display:grid;justify-items:center;gap:4px;text-align:center;align-content:start}
+.im-ico{width:36px;height:36px;border-radius:10px;background:var(--navy);color:var(--accent);display:grid;place-items:center}
+.im-n{font-family:var(--mono);font-size:.68rem;color:var(--muted)}
+.im-sl{font-size:.74rem;font-weight:600;line-height:1.2}
+.im-group{grid-column:1/-1;padding:8px 14px;background:var(--navy);color:var(--navy-ink);font-size:.72rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase}
+.im-group span{position:sticky;left:14px}
+.im-term-row{cursor:pointer;border-top:1px solid var(--line)}
+.im-term-row:hover .im-term,.im-term-row[aria-pressed="true"] .im-term{background:var(--accent-soft)}
+.im-term-row[aria-pressed="true"]{box-shadow:inset 3px 0 0 var(--accent)}
+.im-term-row:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+.im-cell{position:relative;height:26px;align-self:center}
+.im-cell:last-child .risk{right:2px}
+.c-s{background:var(--accent)}
+.c-b{background:#DCE2EA}
+.im-cell.c-s+.im-cell.c-s{box-shadow:-1px 0 0 rgba(255,255,255,.35)}
+.im-cell .ins{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-family:var(--mono);font-size:.62rem;color:var(--navy);background:#fff;border:1px solid var(--navy);border-radius:4px;padding:1px 4px}
+.im-cell .risk{position:absolute;right:-8px;top:50%;width:16px;height:16px;background:var(--navy);transform:translateY(-50%) rotate(45deg);border:2px solid #fff;box-shadow:0 0 0 1px var(--navy);z-index:1}
+.im-explain{display:grid;grid-template-columns:auto 1fr;gap:14px;align-items:start;background:var(--navy);color:var(--navy-ink);border-radius:var(--radius);padding:18px 20px}
+.im-explain .rcode{background:rgba(47,185,132,.16);color:#7BE6BC;border:1px solid rgba(47,185,132,.35);font-size:1rem}
+.im-explain p{margin:4px 0 0;color:var(--navy-muted);max-width:70ch}
+.im-explain .im-risk-line{color:var(--navy-ink)}
+.im-explain .im-risk-line b{color:var(--accent)}
+.im-swipe{display:none}
+@media (max-width:860px){.im-swipe{display:block;margin-top:-8px}.im-row{grid-template-columns:120px repeat(8,minmax(76px,1fr))}.im-term span{display:none}}
 /* contact */
 .contact{display:grid;grid-template-columns:1fr 1.3fr;gap:32px;background:var(--navy);color:var(--navy-ink);border-radius:20px;padding:36px}
 .contact .eyebrow{color:var(--accent)}

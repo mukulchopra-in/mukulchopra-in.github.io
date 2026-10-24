@@ -269,6 +269,52 @@ $("case-list").innerHTML=CASES.map((c,i)=>`<div class="case"><span class="ref">C
 $("isbp-pts").innerHTML=ptsHTML(ISBP);$("urdg-pts").innerHTML=ptsHTML(URDG);$("urc-pts").innerHTML=ptsHTML(URC);$("urr-pts").innerHTML=ptsHTML(URR);
 $("inco-docs").innerHTML=INCO.map(r=>`<tr><td class="term">${r[0]}<div class="muted" style="font-family:var(--body);font-weight:400;font-size:.82rem">${esc(r[1])}</div></td><td>${esc(r[3])}</td><td>${r[4]}</td><td>${esc(r[5])}</td><td>${esc(INCO_DOCS[r[0]])}</td></tr>`).join("");
 
+
+/* ---------- Incoterms map ---------- */
+const IM_STAGES=[
+ ["Seller's premises",'<path d="M3 20V10l5 3V10l5 3V6h3v14z"/><path d="M3 20h18"/><path d="M18 20V4h3v16"/>'],
+ ["Export clearance",'<rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h3"/>'],
+ ["Handed to carrier / alongside ship",'<path d="M2 16h11V8H2z"/><path d="M13 11h4l3 3v2h-7"/><circle cx="6" cy="18" r="1.6"/><circle cx="16" cy="18" r="1.6"/>'],
+ ["Loaded on board",'<path d="M4 3v18"/><path d="M4 4h12l-3 4"/><path d="M13 8v3"/><rect x="10" y="11" width="6" height="4"/><path d="M2 21h20"/>'],
+ ["Main carriage",'<path d="M3 15h18l-2 4H5z"/><path d="M6 15V9h8v6"/><path d="M14 11h3v4"/><path d="M2 21c2 0 2-1 4-1s2 1 4 1 2-1 4-1 2 1 4 1 2-1 4-1"/>'],
+ ["Import clearance",'<circle cx="12" cy="12" r="8"/><path d="M8.5 12l2.5 2.5 4.5-5"/>'],
+ ["Arrived at destination",'<path d="M12 21s-6-5.6-6-10a6 6 0 0 1 12 0c0 4.4-6 10-6 10z"/><circle cx="12" cy="11" r="2.2"/>'],
+ ["Unloaded at destination",'<rect x="4" y="11" width="10" height="8"/><path d="M14 19h6"/><path d="M17 19V7"/><path d="M14 7h6"/>']
+];
+// s = seller pays, b = buyer pays; risk = stage index after which risk passes (0-based); ins = seller insures main carriage
+const IM_TERMS=[
+ ["any","EXW","Ex Works","sbbbbbbb",0,false,"The seller only makes the goods available at its own premises. The buyer handles and pays for everything else, including loading, export clearance, freight, insurance and import. Risk passes as soon as the goods are made available."],
+ ["any","FCA","Free Carrier","sssbbbbb",2,false,"The seller clears the goods for export and hands them to the buyer's carrier at the named place. Risk passes at that handover. The buyer pays main freight, insurance and import costs."],
+ ["any","CPT","Carriage Paid To","sssssbbb",2,false,"The seller pays freight to the named destination, but risk passes early, when the goods are handed to the first carrier. If goods are damaged in transit, the loss is the buyer's even though the seller paid the freight."],
+ ["any","CIP","Carriage and Insurance Paid To","sssssbbb",2,true,"Like CPT, but the seller must also buy insurance for the buyer's benefit, on all-risks cover (ICC A). Risk still passes at handover to the first carrier."],
+ ["any","DAP","Delivered at Place","sssssbsb",6,false,"The seller delivers to the named destination, with goods ready for unloading. The seller bears risk until then. The buyer pays for unloading, import clearance and duties."],
+ ["any","DPU","Delivered at Place Unloaded","sssssbss",7,false,"The only term where the seller must unload the goods at destination. Risk passes once unloaded. Import clearance and duties stay with the buyer."],
+ ["any","DDP","Delivered Duty Paid","sssssssb",6,false,"The most the seller can take on: delivery to the destination, import clearance and duties paid, goods ready for unloading. The buyer only unloads."],
+ ["sea","FAS","Free Alongside Ship","sssbbbbb",2,false,"The seller places the goods alongside the vessel at the port of loading, cleared for export. Risk passes there. The buyer pays loading, sea freight and everything after."],
+ ["sea","FOB","Free on Board","ssssbbbb",3,false,"The seller pays until the goods are loaded on board the vessel at the port of loading. Risk passes once on board. The buyer pays sea freight, insurance and import costs."],
+ ["sea","CFR","Cost and Freight","sssssbbb",3,false,"The seller pays sea freight to the port of destination, but risk passes once the goods are on board at the port of loading. The buyer insures the voyage."],
+ ["sea","CIF","Cost, Insurance and Freight","sssssbbb",3,true,"Like CFR, but the seller also buys marine insurance for the buyer, on at least minimum cover (ICC C) at 110% of the value. Risk still passes once on board."]
+];
+function renderIncoMap(){
+  const m=$("inco-map");if(!m)return;
+  const icon=p=>`<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${p}</svg>`;
+  let h=`<div class="im-row im-head" role="row"><div class="im-term" role="columnheader"><span class="muted">Term</span></div>`+
+    IM_STAGES.map((st,i)=>`<div class="im-stage" role="columnheader"><span class="im-ico">${icon(st[1])}</span><span class="im-n">${i+1}</span><span class="im-sl">${esc(st[0])}</span></div>`).join("")+`</div>`;
+  let last="";
+  IM_TERMS.forEach((t,k)=>{
+    if(t[0]!==last){last=t[0];h+=`<div class="im-group" role="row"><span>${t[0]==="any"?"Any mode of transport":"Sea and inland waterway only"}</span></div>`;}
+    h+=`<button class="im-row im-term-row" role="row" data-k="${k}" aria-pressed="false"><div class="im-term" role="rowheader"><b>${t[1]}</b><span>${esc(t[2])}</span></div>`+
+      t[3].split("").map((c,i)=>`<div class="im-cell ${c==="s"?"c-s":"c-b"}${i===4&&t[5]?" c-ins":""}" role="cell" aria-label="${IM_STAGES[i][0]}: ${c==="s"?"seller":"buyer"} pays${t[4]===i?", risk passes to buyer after this stage":""}">${i===4&&t[5]?'<span class="ins">INS</span>':""}${t[4]===i?'<span class="risk" title="Risk passes to buyer"></span>':""}</div>`).join("")+`</button>`;
+  });
+  m.innerHTML=h;
+  const ex=$("inco-explain");
+  const pick=k=>{m.querySelectorAll(".im-term-row").forEach(r=>r.setAttribute("aria-pressed",String(+r.dataset.k===k)));const t=IM_TERMS[k];
+    ex.innerHTML=`<span class="rcode">${t[1]}</span><div><b>${esc(t[2])}</b><p>${esc(t[6])}</p><p class="im-risk-line">Risk passes to buyer: after <b>${esc(IM_STAGES[t[4]][0].toLowerCase())}</b>.</p></div>`;};
+  m.addEventListener("click",e=>{const r=e.target.closest(".im-term-row");if(r)pick(+r.dataset.k)});
+  pick(8);
+}
+renderIncoMap();
+
 /* ---------- tabs ---------- */
 document.querySelectorAll("[data-tabs]").forEach(bar=>{
   const name=bar.dataset.tabs;
