@@ -37,7 +37,7 @@ const UCP=[
  ["11","Teletransmitted and pre-advised credits and amendments","liab","An authenticated teletransmission (such as SWIFT) is the operative credit, and any later mail confirmation is disregarded. If it says 'full details to follow', it is not operative until those details arrive. A bank that sends a pre-advice must then issue the operative credit without delay, on terms consistent with the pre-advice."],
  ["12","Nomination","liab","Being nominated does not oblige a bank to honour or negotiate unless it agrees or is the confirming bank. Nominating a bank to accept a draft or incur a deferred payment undertaking authorises it to prepay or buy that draft or undertaking. Receiving or forwarding documents does not by itself make a nominated bank liable."],
  ["13","Bank-to-bank reimbursement arrangements","liab","If the credit says reimbursement is subject to the ICC reimbursement rules (URR), those apply. Otherwise, the issuing bank must give the reimbursing bank a proper authorisation, and a claiming bank cannot be asked for a certificate of compliance. If reimbursement is not made on first demand, the issuing bank remains liable, including for any lost interest."],
- ["14","Standard for examination of documents","exam","Banks examine documents alone to decide whether they appear to comply. Each bank has up to five banking days after the day of presentation. Original transport documents must be presented within 21 calendar days of shipment, and never after expiry. Data need not be identical across documents but must not conflict. Outside the invoice, goods may be described in general terms. Documents not called for are disregarded, and conditions with no stated document are ignored. Addresses need not match the credit exactly but must be in the same country. The shipper need not be the beneficiary."],
+ ["14","Standard for examination of documents","exam","Banks examine documents alone to decide whether they appear to comply. Each bank has up to five banking days after the day of presentation. A presentation that includes original transport documents (Arts. 19–25) must be made within 21 calendar days after shipment, unless the credit sets a different period, and in any case no later than the expiry date. Data need not be identical across documents but must not conflict. Outside the invoice, goods may be described in general terms. Documents not called for are disregarded, and conditions with no stated document are ignored. Addresses need not match the credit exactly but must be in the same country. The shipper need not be the beneficiary."],
  ["15","Complying presentation","exam","When the presentation complies, the issuing bank must honour, a confirming bank must honour or negotiate and forward the documents, and a nominated bank that honours or negotiates must forward them to the confirming or issuing bank."],
  ["16","Discrepant documents, waiver and notice","exam","A bank may refuse documents that do not comply. The issuing bank may ask the applicant to waive discrepancies, but this does not extend the examination period. A refusal must be a single notice, sent by the end of the fifth banking day after presentation, stating each discrepancy and what the bank is doing with the documents. A bank that fails to follow this cannot later claim the documents were discrepant."],
  ["17","Original documents and copies","exam","At least one original of each required document must be presented. A document with an apparently original signature, mark, stamp or label of its issuer is treated as an original. Where copies are asked for, copies or originals are acceptable. Terms like 'in duplicate' are met by one original and the rest copies."],
@@ -66,7 +66,7 @@ const UCP=[
 ];
 const KEYNUMS=[
  ["5","banking days","Maximum time for each bank to examine documents, and to send a refusal notice","Art. 14(b), 16(d)"],
- ["21","calendar days","Default presentation period after shipment, if the credit is silent","Art. 14(c)"],
+ ["21","calendar days","Default period for presenting documents after shipment, when the credit sets none. Applies to presentations that include original transport documents (Arts. 19–25), and never later than the expiry date.","Art. 14(c)"],
  ["110%","of CIF / CIP value","Minimum insurance cover when the credit does not state an amount","Art. 28(f)"],
  ["10%","more or less","Tolerance allowed by 'about' or 'approximately'","Art. 30(a)"],
  ["5%","quantity tolerance","For goods not counted in units, as long as the amount is not exceeded","Art. 30(b)"],
@@ -145,9 +145,9 @@ const EUCP=[
  ["Originals and copies","No separate original","Presenting one electronic record satisfies a requirement for one or more originals or copies of that record."]
 ];
 const CASES=[
- ["Goods description on the invoice","Field 45A of the LC reads '100% cotton men's shirts, sizes M to XL'. The commercial invoice describes the goods as 'Cotton shirts'. The bill of lading says 'Shirts'.","Discrepant",'The invoice must correspond with the credit\'s description, and "Cotton shirts" leaves out details the LC requires. The bill of lading is fine: documents other than the invoice may describe goods in general terms, as long as they do not conflict. See Art. 18 and Art. 14.'],
+ ["Goods description on the invoice","Field 45A of the LC reads '100% cotton men's shirts, sizes M to XL'. The commercial invoice describes the goods as 'Cotton shirts'. The bill of lading says 'Shirts'.","Discrepant","The invoice must correspond with the credit's description (Art. 18(c)). It doesn't have to be a word-for-word copy, and details can appear in different places on the invoice. But 'Cotton shirts' leaves out that they are 100% cotton, that they are men's, and the size range. Read as a whole, the invoice doesn't describe the goods the credit calls for. The bill of lading is fine: documents other than the invoice may describe the goods in general terms that don't conflict with the credit (Art. 14(e))."],
  ["Presentation after 21 days","The LC expires on 30 April and states no presentation period. The bill of lading shows shipment on board on 2 March. Documents are presented on 28 March.","Discrepant","With no stated period, original transport documents must be presented within 21 calendar days after shipment, which here ends on 23 March. The expiry date being later does not help. See Art. 14."],
- ["Refusal on the sixth banking day","Documents reach the issuing bank, which finds a genuine discrepancy. It sends its refusal notice at the close of the sixth banking day following the day of presentation.","Bank must pay","A refusal must be given by the close of the fifth banking day following the day of presentation. A late notice means the bank loses the right to claim the documents do not comply. See Art. 16."],
+ ["Refusal on the sixth banking day","Documents are presented to the issuing bank on Tuesday, 10 November 2026. The bank, in India, finds a genuine discrepancy. It asks the applicant whether they will waive it, waits for a reply, and sends its refusal notice on Wednesday, 18 November.","Cannot refuse","Counting starts the day after presentation, and only banking days count: Wed 11 (1), Thu 12 (2), Fri 13 (3). Sat 14 is a 2nd Saturday and Sun 15 a Sunday, so both are skipped. Mon 16 (4), Tue 17 (5).\nThe fifth banking day ended on Tuesday, 17 November, so a notice on the 18th is late. Asking the applicant for a waiver does not extend the time (Art. 16(b)). Because the notice was late, the bank is precluded from claiming the documents do not comply (Art. 16(f)), even though the discrepancy is real. In practice, it has to honour the presentation.\nLesson: start the waiver request early, and send the refusal notice within five banking days whatever the applicant says.","Can the bank still refuse?"],
  ["Short shipment of bulk goods","The LC is for 500 metric tons of wheat, USD 100,000, partial shipments not allowed, with no 'about' wording. The seller ships 490 metric tons and invoices USD 98,000.","Not discrepant","Wheat in bulk is not counted in packing units or individual items, so a 5% quantity tolerance applies, provided the amount drawn does not exceed the credit. 490 tons is within 5%. See Art. 30."],
  ["Insurance dated after shipment","The bill of lading shows goods shipped on board on 10 May. The insurance certificate is dated 12 May and does not say cover is effective from the date of shipment.","Discrepant","The insurance document must be dated no later than shipment, unless it shows that cover is effective from a date no later than shipment. See Art. 28."],
  ["Different address for the applicant","The LC shows the applicant's address in Noida. The commercial invoice shows the applicant's address in Gurugram. Both are in India. The address does not appear in the consignee or notify party field of the transport document.","Not discrepant","Addresses of the beneficiary and applicant need not match the credit, as long as they are in the same country. The exception is when the address appears as part of the consignee or notify party details on a transport document. See Art. 14."]
@@ -174,7 +174,7 @@ const DISC=[
  ["Missing originals","Fewer originals presented than the LC or the document itself says were issued."]
 ];
 const MT=[
- ["40E","Applicable rules","Should say UCP latest version. If it names other rules, read the credit with those in mind."],
+ ["40E","Applicable rules","Shows which rules govern the credit. For a standard documentary credit this is usually 'UCP LATEST VERSION'. Check that it matches what was agreed. Other options include eUCP or ISP98, and the credit must then be read under those rules."],
  ["31D","Date and place of expiry","Documents must reach the place named here by this date. An expiry at the issuing bank abroad leaves you less time than one in your own country."],
  ["32B","Currency and amount","The invoice and draft cannot exceed this, beyond any tolerance in 39A."],
  ["39A","Amount tolerance","For example 10/10 allows 10% more or less. If blank, only the Art. 30 rules apply."],
@@ -183,7 +183,7 @@ const MT=[
  ["43P / 43T","Partial shipments and transhipment","Allowed or not allowed. Plan your shipping before agreeing to 'not allowed'."],
  ["44E / 44F","Ports of loading and discharge","The transport document must show these ports as named. A different port is a discrepancy."],
  ["44C","Latest date of shipment","The on-board date cannot be later than this. Unlike the expiry date, it is not extended for a bank holiday."],
- ["45A","Description of goods","Copy this into the invoice word for word. Other documents may use a general description that does not conflict."],
+ ["45A","Description of goods","The invoice description must correspond with this field (Art. 18(c)). Reproducing it in full is the safest practice. A mirror image isn't required, but omitting or changing details invites a discrepancy. Other documents may describe the goods in general terms that do not conflict."],
  ["46A","Documents required","List every document, the number of originals and copies, and who must issue or sign each one."],
  ["47A","Additional conditions","Where most surprises sit. A condition with no document to show compliance is disregarded, but every documentary condition must be met."],
  ["71D","Charges","Who pays bank charges outside the issuing bank. Factor these into your price."],
@@ -193,7 +193,7 @@ const MT=[
 const TIPS=[
  ["Read the LC the day it arrives","Ask for amendments before shipment, when the buyer still has a reason to agree."],
  ["Work backwards from three dates","Latest shipment (44C), presentation period (48) and expiry (31D). The earliest limit is the one that counts."],
- ["Copy the goods description exactly","The invoice must match 45A. Paraphrasing is one of the most common reasons for refusal."],
+ ["Reproduce the goods description in full","The invoice must correspond with 45A. Copying it in full is the safest approach. It need not be a mirror image, but omitted or altered details are one of the most common reasons for refusal."],
  ["Keep data consistent across documents","Quantities, weights, marks and LC number should not conflict between invoice, packing list and transport document."],
  ["Match names, addresses and ports","Use the names and ports exactly as the LC states them."],
  ["Count the originals","Present the number of originals 46A asks for, and the full set of any bill of lading issued in more than one original."],
@@ -229,7 +229,7 @@ const INCO=[
 ];
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const artHTML=a=>`<details class="art" data-artno="${a[0]}"><summary><span class="artno">Art. ${a[0]}</span><b>${esc(a[1])}</b></summary><div class="body">${esc(a[3])}</div></details>`;
-const $=id=>document.getElementById(id);
+const $=id=>document.getElementById(id)||document.createElement("input");
 
 $("disc-list").innerHTML=DISC.map(d=>`<div class="disc-row"><h3>${esc(d[0])}</h3><p class="muted">${esc(d[1])}</p></div>`).join("");
 $("mt-list").innerHTML=MT.map(m=>`<div class="mt-row"><span class="mt-tag">${m[0]}</span><div><b>${esc(m[1])}</b><p class="muted">${artify(esc(m[2]))}</p></div></div>`).join("");
@@ -265,7 +265,7 @@ renderArts("");
 $("ucp-nums").innerHTML=KEYNUMS.map(n=>`<div class="num"><div class="num-big">${esc(n[0])}</div><div class="num-unit">${esc(n[1])}</div><p class="muted">${esc(n[2])}</p><span class="ref">${refLinks(esc(n[3]))}</span></div>`).join("");
 const ptsHTML=arr=>arr.map(p=>`<div class="pt"><span class="ref">${esc(p[0])}</span><h3>${esc(p[1])}</h3><p class="muted">${esc(p[2])}</p></div>`).join("");
 $("isp-pts").innerHTML=ptsHTML(ISP);$("eucp-pts").innerHTML=ptsHTML(EUCP);
-$("case-list").innerHTML=CASES.map((c,i)=>`<div class="case"><span class="ref">Case ${i+1}</span><h3>${esc(c[0])}</h3><p>${esc(c[1])}</p><p class="case-q">Discrepant or not?</p><details class="reveal"><summary>Show the answer</summary><div class="ans"><span class="verdict ${c[2]==="Discrepant"?"v-bad":"v-ok"}">${esc(c[2])}</span><p class="muted">${artify(esc(c[3]))}</p></div></details></div>`).join("");
+$("case-list").innerHTML=CASES.map((c,i)=>`<div class="case"><span class="ref">Case ${i+1}</span><h3>${esc(c[0])}</h3><p>${esc(c[1])}</p><p class="case-q">${esc(c[4]||"Discrepant or not?")}</p><details class="reveal"><summary>Show the answer</summary><div class="ans"><span class="verdict ${c[2]==="Discrepant"?"v-bad":"v-ok"}">${esc(c[2])}</span><p class="muted">${artify(esc(c[3])).replace(/\n/g,"</p><p class=\"muted\">")}</p></div></details></div>`).join("");
 /* ---------- URC 522 and URDG 758 article data ---------- */
 const URC_GROUPS=[
  ["gen","General provisions and definitions","1–4"],
@@ -304,7 +304,7 @@ const URC_ARTS=[
  ["26","Advices","oth","The collecting bank must advise payment, acceptance, non-payment or non-acceptance without delay, quoting the remitting bank's reference. On non-payment or non-acceptance, the presenting bank should try to find out why and report it. If it receives no instructions within 60 days of that advice, it may return the documents to the bank it received them from, with no further responsibility."]
 ];
 const URC_KEY=[
- ["D/P","by default","If the instruction does not say whether documents are released against payment or acceptance, they are released only against payment.","Art. 7"],
+ ["D/P","if a usance bill's terms are unclear","Where a collection includes a bill payable at a future date and the instruction does not say D/A or D/P, documents are released only against payment. The collecting bank is not responsible for any delay this causes.","Art. 7"],
  ["No","examination","Banks only check that the documents received match the list in the collection instruction. They do not examine what the documents say.","Art. 12"],
  ["100%","before release","In a documentary collection, documents are released only after full payment, unless partial payments are specifically allowed.","Art. 19"],
  ["Waivable","interest and charges","The presenting bank may release documents without collecting interest or charges, unless the instruction says they may not be waived.","Art. 20, 21"],
@@ -392,6 +392,7 @@ setupRuleArts({pre:"urdg",box:"urdg-arts",nav:"urdg-groupnav",q:"urdg-art-q",num
 
 const URC_TIPS=[
  ["Say D/P or D/A, clearly","State the release terms in the collection instruction. Avoid sending a usance bill with a D/P instruction; if you must, say so expressly.","Art. 7"],
+ ["Make sure the documents control the goods","D/P protects you only if the buyer needs the documents to get the goods. Use a full set of order bills of lading. With an air waybill or sea waybill consigned to the buyer, the buyer may be able to collect the goods without paying.",""],
  ["Give the drawee's full address","Include the complete postal address, phone and email. Banks are not liable for delays caused by an incomplete address.","Art. 4"],
  ["Never consign goods to the bank","Don't ship goods to the collecting bank or to its order without its prior agreement. The bank has no duty to take delivery, and the goods stay at your risk.","Art. 10"],
  ["Decide on interest and charges","If interest or charges must not be waived, say so expressly. Otherwise the presenting bank may release documents without collecting them.","Art. 20, 21"],
@@ -536,15 +537,6 @@ function show(route,opts){
 const hdr=document.querySelector("header.site"),mbtn=$("menu-btn");
 function setMenu(open){hdr.classList.toggle("open",open);mbtn.setAttribute("aria-expanded",open);mbtn.setAttribute("aria-label",open?"Close menu":"Open menu");}
 mbtn.addEventListener("click",e=>{e.stopPropagation();setMenu(!hdr.classList.contains("open"))});
-function onRoute(e){
-  const a=e.target.closest&&e.target.closest("[data-route]");
-  if(!a)return;
-  e.preventDefault();e.stopPropagation();
-  setMenu(false);
-  const r=a.dataset.route;
-  try{history.replaceState(null,"","#"+r)}catch(_){}
-  show(r,{tool:a.dataset.tool});
-}
 window.addEventListener("click",e=>{if(e.target.closest&&e.target.closest("nav.menu a"))setMenu(false)},true);
 document.querySelectorAll("[data-jump]").forEach(b=>b.addEventListener("click",()=>$(b.dataset.jump).scrollIntoView({behavior:"smooth",block:"start"})));
 
@@ -635,12 +627,16 @@ function calcLC(){
   const st=$("lc-status");
   const lsd=parseD($("lc-lsd").value);
   if(!ship||!exp){$("lc-last").textContent="–";st.innerHTML=`<div class="status warn">Enter the shipment and expiry dates.</div>`;$("lc-tline").innerHTML="";return}
+  const stop=m=>{$("lc-last").textContent="–";["lc-raw","lc-which","lc-exam"].forEach(i=>$(i).textContent="–");st.innerHTML=`<div class="status warn">${m}</div>`;$("lc-tline").innerHTML="";};
+  if(exp<ship){stop("The expiry date is before the shipment date. Check the dates.");return}
+  if(!per){stop("Enter a presentation period in days (21 if the LC is silent).");return}
   const raw=addDays(ship,per);const usingExp=exp<raw;let last=usingExp?exp:raw;
   let ext=last;while(closed(ext,rule,hol))ext=addDays(ext,1);
   $("lc-raw").textContent=fmtD(raw);
   $("lc-which").textContent=usingExp?"LC expiry comes first":"Presentation period comes first";
   $("lc-last").textContent=fmtD(ext);
   let msgs=[];
+  if(lsd&&lsd>exp)msgs.push(`<div class="status warn">The latest shipment date is after the expiry date. Check the LC: shipping that late would leave no time to present documents.</div>`);
   if(lsd){
     if(ship>lsd)msgs.push(`<div class="status bad">Late shipment: shipped on ${fmtD(ship)}, after the latest shipment date of ${fmtD(lsd)}. The latest shipment date is never extended for a holiday (Art. 29c).</div>`);
     else msgs.push(`<div class="status ok">Shipment is within the latest shipment date (field 44C).</div>`);

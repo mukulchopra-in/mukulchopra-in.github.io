@@ -241,7 +241,7 @@ header.site.open .menu-btn span:nth-child(3){transform:translateY(-7px) rotate(-
 .ucp-stats{display:flex;gap:28px;flex-wrap:wrap;margin-bottom:auto;padding-bottom:18px;border-bottom:1px solid var(--navy-line)}
 .ucp-stats div{display:grid;gap:2px}
 .ucp-stats b{font-size:clamp(2.2rem,5vw,3.2rem);font-weight:800;letter-spacing:-.04em;line-height:1;color:var(--accent)}
-.ucp-stats span{font-size:.8rem;color:var(--navy-muted);max-width:12ch}
+.ucp-stats span{font-size:.8rem;color:var(--navy-muted);max-width:14ch}
 .t-ucp .rcode,.t-inco .rcode{background:rgba(47,185,132,.16);color:#7BE6BC;border:1px solid rgba(47,185,132,.35)}
 .t-inco{grid-column:span 1}
 .t-cases{grid-column:span 3}
@@ -383,6 +383,7 @@ input.slider::-moz-range-thumb{width:16px;height:16px;border-radius:50%;backgrou
 @media (max-width:900px){#urc-nums,#urdg-nums{grid-template-columns:repeat(2,1fr)}}
 @media (max-width:520px){#urc-nums,#urdg-nums{grid-template-columns:1fr}}
 .tip-ref{display:inline-block;margin-top:6px;font-family:var(--mono);font-size:.72rem;color:var(--accent-deep)}
+.kv-note{margin:-6px 0 0;font-size:.78rem;color:var(--navy-muted)}
 /* contact */
 .contact{display:grid;grid-template-columns:1fr 1.3fr;gap:32px;background:var(--navy);color:var(--navy-ink);border-radius:20px;padding:36px}
 .contact .eyebrow{color:var(--accent)}
