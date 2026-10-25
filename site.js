@@ -376,7 +376,7 @@ const URR_EXTRA=[
 function setupRuleArts(cfg){
   const box=$(cfg.box),nav=$(cfg.nav),q=$(cfg.q),nums=$(cfg.nums);
   if(!box||!nav||!q)return;
-  const card=a=>`<details class="art"><summary><span class="artno">Art. ${a[0]}</span><b>${esc(a[1])}</b></summary><div class="body">${esc(a[3])}</div></details>`;
+  const card=a=>`<details class="art" data-artno="${a[0]}"><summary><span class="artno">Art. ${a[0]}</span><b>${esc(a[1])}</b></summary><div class="body">${esc(a[3])}</div></details>`;
   const draw=t=>{t=(t||"").trim().toLowerCase();
     const html=cfg.groups.map(g=>{const items=cfg.arts.filter(a=>a[2]===g[0]&&(!t||a[0]===t||("art "+a[0]+" "+a[1]+" "+a[3]).toLowerCase().includes(t)));
       return items.length?`<div class="artgroup" id="${cfg.pre}-grp-${g[0]}"><div class="artgroup-h"><h3>${esc(g[1])}</h3><span class="muted">Articles ${g[2]}</span></div><div class="articles">${items.map(card).join("")}</div></div>`:"";}).join("");
@@ -464,6 +464,68 @@ function renderIncoMap(){
 }
 renderIncoMap();
 
+
+/* ---------- UCP 600: LC flow map ---------- */
+const LCM_STEPS=[
+ [1,"contract","Sale contract","Buyer and seller agree the sale, with payment by letter of credit. The credit will be separate from this contract.","Art. 4"],
+ [2,"credit","Application","The buyer (applicant) asks its bank to issue a credit in the seller's favour.",""],
+ [3,"credit","Issuance","The issuing bank issues the credit, usually by SWIFT MT700, to a bank in the seller's country. It is now irrevocably bound.","Art. 7"],
+ [4,"credit","Advice","The advising bank checks that the credit appears authentic and passes it to the seller. It may also add its confirmation.","Art. 8, 9"],
+ [5,"goods","Shipment","The seller ships the goods by the latest shipment date and gathers the documents the credit asks for.","Art. 14"],
+ [6,"docs","Presentation","The seller presents the documents to the nominated bank, within the presentation period and before expiry.","Art. 6, 14"],
+ [7,"money","Examination and payment","The nominated bank has up to five banking days to examine the documents. If they comply, it pays, accepts or negotiates.","Art. 12, 14, 15"],
+ [8,"docs","Forwarding","The nominated bank sends the documents to the issuing bank and claims reimbursement.","Art. 15"],
+ [9,"money","Reimbursement","The issuing bank examines the documents and, if they comply, reimburses the nominated bank.","Art. 7"],
+ [10,"money","Buyer pays","The buyer pays or reimburses its bank, under their own agreement.",""],
+ [11,"docs","Documents released","The issuing bank releases the documents, which the buyer uses to take delivery of the goods.",""]
+];
+// geometry: [x1,y1,x2,y2, badgeX, badgeY]
+const LCM_GEO={1:[222,42,418,42,320,42],5:[418,84,222,84,320,84],2:[70,102,70,326,70,214],10:[120,102,120,326,120,214],11:[170,326,170,102,170,214],
+ 3:[222,344,418,344,320,344],8:[418,372,222,372,320,372],9:[222,400,418,400,320,400],4:[470,326,470,102,470,214],6:[520,102,520,326,520,214],7:[570,326,570,102,570,214]};
+function renderLcMap(){
+  const svg=$("lc-map"),list=$("lc-map-steps"),ex=$("lc-map-explain");if(!(svg instanceof SVGElement))return;
+  const box=(x,y,t,sub)=>`<g class="lcm-box"><rect x="${x}" y="${y}" width="200" height="82" rx="14"/><text x="${x+100}" y="${y+36}" text-anchor="middle" class="lcm-bt">${t}</text><text x="${x+100}" y="${y+58}" text-anchor="middle" class="lcm-bs">${sub}</text></g>`;
+  let g=`<defs>${["credit","goods","docs","money","contract"].map(k=>`<marker id="ah-${k}" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="ah ah-${k}"/></marker>`).join("")}</defs>`;
+  g+=box(20,20,"Buyer","Applicant")+box(420,20,"Seller","Beneficiary")+box(20,326,"Issuing bank","Buyer's bank")+box(420,326,"Nominated bank","Advising · seller's bank");
+  LCM_STEPS.forEach(st=>{const n=st[0],k=st[1],[x1,y1,x2,y2,bx,by]=LCM_GEO[n];
+    const start=k==="contract"?` marker-start="url(#ah-${k})"`:"";
+    g+=`<g class="lcm-step lk-${k}" data-n="${n}" tabindex="0" role="button" aria-label="Step ${n}: ${esc(st[2])}"><line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" class="lcm-line"${start} marker-end="url(#ah-${k})"/><circle cx="${bx}" cy="${by}" r="12" class="lcm-badge"/><text x="${bx}" y="${by+4}" text-anchor="middle" class="lcm-bn">${n}</text></g>`;});
+  svg.innerHTML=g;
+  list.innerHTML=LCM_STEPS.map(st=>`<li><button class="lcm-li" data-n="${st[0]}" aria-pressed="false"><span class="lcm-num lk-${st[1]}">${st[0]}</span><span>${esc(st[2])}</span></button></li>`).join("");
+  const pick=n=>{const st=LCM_STEPS[n-1];
+    svg.querySelectorAll(".lcm-step").forEach(e=>e.classList.toggle("on",+e.dataset.n===n));svg.classList.add("has-on");
+    list.querySelectorAll(".lcm-li").forEach(e=>e.setAttribute("aria-pressed",String(+e.dataset.n===n)));
+    ex.innerHTML=`<span class="lcm-num big lk-${st[1]}">${n}</span><div><b>${esc(st[2])}</b><p>${esc(st[3])}</p>${st[4]?`<span class="tip-ref">${typeof refLinks==="function"?"Art. "+refLinks(esc(st[4].replace(/^Art\. /,""))):esc(st[4])}</span>`:""}</div>`;};
+  const h=e=>{const t=e.target.closest("[data-n]");if(t)pick(+t.dataset.n)};
+  svg.addEventListener("click",h);list.addEventListener("click",h);
+  svg.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();h(e)}});
+  pick(1);
+}
+renderLcMap();
+
+/* ---------- UCP 600: key dates timeline ---------- */
+function renderTimeline(){
+  const svg=$("lc-timeline");if(!(svg instanceof SVGElement))return;
+  svg.setAttribute("viewBox","0 50 760 236");
+  const X={ship:60,lsd:165,pres:330,last:470,exp:610,exam:695},y=165;
+  let g=`<defs><marker id="tl-ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" class="tl-ahp"/></marker></defs>`;
+  g+=`<line x1="24" y1="${y}" x2="748" y2="${y}" class="tl-axis" marker-end="url(#tl-ah)"/>`;
+  g+=`<rect x="${X.ship}" y="${y-42}" width="${X.last-X.ship}" height="26" rx="6" class="tl-band"/><text x="${(X.ship+X.last)/2}" y="${y-25}" text-anchor="middle" class="tl-bandt">Presentation period · 21 days if the LC is silent (Art. 14c)</text>`;
+  g+=`<rect x="${X.pres}" y="${y+18}" width="${X.exam-X.pres}" height="26" rx="6" class="tl-band2"/><text x="${(X.pres+X.exam)/2}" y="${y+35}" text-anchor="middle" class="tl-band2t">Up to 5 banking days to examine (Art. 14b)</text>`;
+  const pt=(x,cls,lab,s1,s2,up)=>{
+    const tx=up?[y-90,y-76,y-62]:[y+72,y+86,y+100];
+    return `<line x1="${x}" y1="${up?y-56:y+56}" x2="${x}" y2="${y}" class="tl-tick"/><circle cx="${x}" cy="${y}" r="7" class="tl-pt ${cls}"/>`+
+      `<text x="${x}" y="${tx[0]}" text-anchor="middle" class="tl-lab">${lab}</text>`+(s1?`<text x="${x}" y="${tx[1]}" text-anchor="middle" class="tl-sub">${s1}</text>`:"")+(s2?`<text x="${x}" y="${tx[2]}" text-anchor="middle" class="tl-sub">${s2}</text>`:"");};
+  g+=pt(X.ship,"p-ship","Shipment","on-board date","",true);
+  g+=pt(X.last,"p-last","Last day to present","period end or expiry,","whichever is earlier",true);
+  g+=pt(X.exp,"p-exp","Expiry (31D)","if a holiday: next","banking day (Art. 29a)",true);
+  g+=pt(X.lsd,"p-lsd","Latest shipment (44C)","never extended","(Art. 29c)",false);
+  g+=pt(X.pres,"p-pres","Documents presented","","",false);
+  g+=pt(X.exam,"p-exam","Honour, or one","refusal notice","(Art. 15, 16)",false);
+  svg.innerHTML=g;
+}
+renderTimeline();
+
 /* ---------- tabs ---------- */
 document.querySelectorAll("[data-tabs]").forEach(bar=>{
   const name=bar.dataset.tabs;
@@ -477,7 +539,8 @@ document.querySelectorAll("[data-tabs]").forEach(bar=>{
 
 /* ---------- routing ---------- */
 const TOOL_SUB=["tool-emi", "tool-elig", "tool-prepay", "tool-lc", "tool-usance", "tool-sip", "tool-fd", "tool-cmp"];
-const PAGES=["home","trade-finance","ucp-600","isbp-821","urdg-758","urc-522","urr-725","incoterms","isp98","eucp","case-studies","glossary","tools",...TOOL_SUB,"blog","contact"];
+const PAGES=["home","trade-finance","ucp-600","isbp-821","urdg-758","urc-522","urr-725","incoterms","isp98","eucp","case-studies","glossary","tools",...TOOL_SUB,"blog","blog-lc-discrepancies","blog-export-payment-methods","blog-prepay-or-invest","contact"];
+const BLOG_SUB=["blog-lc-discrepancies", "blog-export-payment-methods", "blog-prepay-or-invest"];
 const TF_SUB=["ucp-600","isbp-821","urdg-758","urc-522","urr-725","incoterms","isp98","eucp","case-studies","glossary"];
 function toTop(page){
   try{window.scrollTo(0,0)}catch(_){}
@@ -514,7 +577,10 @@ const PAGE_META={
  "tool-sip":["SIP calculator","Estimated value of a monthly SIP."],
  "tool-fd":["Fixed deposit calculator","FD maturity value with quarterly compounding."],
  "tool-cmp":["Compare loan offers","Compare two loan offers by EMI and total cost including fees."],
- "blog":["Blog","Practical writing on trade finance, home loans and personal finance. Coming soon."],
+ "blog":["Blog","Short, practical pieces on trade finance, home loans and personal finance."],
+ "blog-lc-discrepancies":["The 5 discrepancies I see most often, and how exporters can avoid them","The five most common LC discrepancies, why they happen and how exporters can avoid them, with the UCP 600 rule behind each one."],
+ "blog-export-payment-methods":["LC, documentary collection or advance payment: which one fits your export deal?","Advance payment, letter of credit, D/P and D/A collections and open account compared for exporters: risk, cost, and when each one fits."],
+ "blog-prepay-or-invest":["Prepay the home loan or invest the money? A simple way to compare","Should you prepay your home loan or invest the surplus? A simple comparison using your loan rate, tax and expected returns, with a worked example."],
  "contact":["Contact","Get in touch with Mukul Chopra."]
 };
 function setMeta(page){
@@ -527,7 +593,7 @@ function show(route,opts){
   const page=PAGES.includes(route)?route:"home";
   PAGES.forEach(p=>{$("page-"+p).hidden=p!==page});
   document.querySelectorAll("nav.menu a").forEach(a=>{
-    const navPage=TF_SUB.includes(page)?"trade-finance":TOOL_SUB.includes(page)?"tools":page;
+    const navPage=TF_SUB.includes(page)?"trade-finance":TOOL_SUB.includes(page)?"tools":BLOG_SUB.includes(page)?"blog":page;
     if(a.dataset.route===navPage)a.setAttribute("aria-current","page");else a.removeAttribute("aria-current");
   });
   setMeta(page);
@@ -717,8 +783,113 @@ $("contact-form").addEventListener("submit",async e=>{
   }catch(_){note.textContent="The message could not be sent. Check your connection and try again."}
 });
 
+/* ---------- site search ---------- */
+const curPage=()=>document.documentElement.dataset.page||((document.querySelector("section.page:not([hidden])")||{}).id||"page-home").slice(5);
+function flash(el){el.classList.remove("srch-flash");void el.offsetWidth;el.classList.add("srch-flash");setTimeout(()=>el.classList.remove("srch-flash"),2100);}
+function openRuleArt(pre,n){
+  const tb=document.querySelector(`[data-tabs="${pre}"] [data-tab="arts"]`);if(tb)tb.click();
+  const q=$(pre+"-art-q");if(q.value){q.value="";q.dispatchEvent(new Event("input"));}
+  const d=document.querySelector(`#${pre}-arts details[data-artno="${n}"]`);
+  if(d){d.open=true;setTimeout(()=>{try{d.scrollIntoView({block:"center"})}catch(_){};flash(d)},120);}
+}
+function findOnPage(page,text){
+  const sec=$("page-"+page);if(!sec.querySelectorAll)return;
+  const t=text.trim().toLowerCase();
+  const el=[...sec.querySelectorAll("dt,h3,td.term,.mt-tag")].find(e=>((e.firstChild&&e.firstChild.textContent)||"").trim().toLowerCase()===t);
+  if(!el)return;
+  const panel=el.closest("[data-tabpanel]");
+  if(panel&&panel.hidden){const [bar,tab]=panel.dataset.tabpanel.split(":");const b=document.querySelector(`[data-tabs="${bar}"] [data-tab="${tab}"]`);if(b)b.click();}
+  const box=el.closest(".pt,.case,.mt-row,.disc-row,tr,dl>div")||el;
+  setTimeout(()=>{try{box.scrollIntoView({block:"center"})}catch(_){};flash(box)},120);
+}
+function applyHash(h){
+  h=decodeURIComponent((h||"").replace(/^#/,""));
+  const page=curPage();let m;
+  if((m=/^art-(\d{1,2})$/.exec(h))){
+    if(page==="ucp-600")openArticle(m[1]);else if(page==="urc-522")openRuleArt("urc",m[1]);else if(page==="urdg-758")openRuleArt("urdg",m[1]);
+  }else if(h.startsWith("find-"))findOnPage(page,h.slice(5));
+}
+window.addEventListener("hashchange",()=>applyHash(location.hash));
+const SX=[];
+const sxAdd=(g,t,b,r,h,extra)=>SX.push(Object.assign({g,t,b,r,h:h||"",x:(g+" "+t+" "+b).toLowerCase(),tl:t.toLowerCase()},extra||{}));
+Object.keys(PAGE_META).filter(p=>p!=="home").forEach(p=>sxAdd(p.startsWith("blog")?"Blog":"Pages and tools",PAGE_META[p][0],PAGE_META[p][1],p,"",{k:p.startsWith("tool")?"calculator":p.startsWith("blog-")?"blog post article":""}));
+UCP.forEach(a=>sxAdd("UCP 600","Art. "+a[0]+" · "+a[1],a[3],"ucp-600","#art-"+a[0],{n:a[0],set:"ucp"}));
+MT.forEach(m=>sxAdd("MT700 fields","Field "+m[0]+" · "+m[1],m[2],"ucp-600","#find-"+m[0]));
+DISC.forEach(d=>sxAdd("Common discrepancies",d[0],d[1],"ucp-600","#find-"+d[0]));
+ISBP.forEach(p=>sxAdd("ISBP 821",p[1],p[2],"isbp-821","#find-"+p[1]));
+URC_ARTS.forEach(a=>sxAdd("URC 522","Art. "+a[0]+" · "+a[1],a[3],"urc-522","#art-"+a[0],{n:a[0],set:"urc"}));
+URDG_ARTS.forEach(a=>sxAdd("URDG 758","Art. "+a[0]+" · "+a[1],a[3],"urdg-758","#art-"+a[0],{n:a[0],set:"urdg"}));
+URR.concat(URR_EXTRA).forEach(p=>sxAdd("URR 725",p[1],p[0]+". "+p[2],"urr-725","#find-"+p[1]));
+ISP.forEach(p=>sxAdd("ISP98",p[0]+" · "+p[1],p[2],"isp98","#find-"+p[1]));
+EUCP.forEach(p=>sxAdd("eUCP 2.1",p[1],p[0]+". "+p[2],"eucp","#find-"+p[1]));
+INCO.forEach(r=>sxAdd("Incoterms 2020",r[0]+" · "+r[1],r[3]+". "+(INCO_DOCS[r[0]]||""),"incoterms","#find-"+r[0]));
+GLOSS.concat(GLOSS_EXTRA).forEach(g=>sxAdd("Glossary",g[0],g[1],"glossary","#find-"+g[0]));
+CASES.forEach(c=>sxAdd("Case studies",c[0],c[1],"case-studies","#find-"+c[0]));
+SX.forEach(e=>{if(e.k)e.x+=" "+e.k});
+const SX_GROUPS=[...new Set(SX.map(e=>e.g))];
+const srch=$("srch"),sq=$("srch-q"),sres=$("srch-res"),sbtn=$("srch-btn");
+const SUGG=["Art. 14","Refusal notice","CIF","Presentation period","Demand guarantee","D/P","EMI calculator","Bill of lading"];
+const reEsc=s=>s.replace(/[.*+?^${}()|[\]\\]/g,"\\$&");
+function hl(text,toks){let h=esc(text);if(!toks.length)return h;const re=new RegExp("("+toks.map(t=>reEsc(esc(t))).join("|")+")","gi");return h.replace(re,"<mark>$1</mark>");}
+function snip(b,toks){const lb=b.toLowerCase();let i=-1;for(const t of toks){const j=lb.indexOf(t);if(j>=0&&(i<0||j<i))i=j;}
+  if(i<60)return b.length>150?b.slice(0,150)+"…":b;const st=b.lastIndexOf(" ",i-40)+1;const out=b.slice(st,st+150);return "…"+out+(st+150<b.length?"…":"");}
+let sHits=[],sOn=-1;
+function srchRun(){
+  const raw=sq.value.trim(),q=raw.toLowerCase();
+  if(!q){sHits=[];sOn=-1;sres.innerHTML=`<p class="srch-empty">Search every guide, article, Incoterm, glossary term and calculator. Try:</p><div class="srch-sug">${SUGG.map(s=>`<button type="button" data-sug="${esc(s)}">${esc(s)}</button>`).join("")}</div>`;return;}
+  let hits=[],toks=[];
+  const m=/^(ucp|urc|urdg)?\s*(?:600|522|758)?\s*(?:art(?:icle)?s?\.?\s*)?(\d{1,2})$/.exec(q);
+  if(m){hits=SX.filter(e=>e.n===String(+m[2])&&(!m[1]||e.set===m[1])).map(e=>({e,s:0}));}
+  if(!hits.length){
+    toks=q.replace(/[^\w%/&.-]+/g," ").split(/\s+/).filter(Boolean);
+    hits=SX.filter(e=>toks.every(t=>e.x.includes(t))).map(e=>({e,s:e.tl.includes(q)?0:toks.every(t=>e.tl.includes(t))?1:2}));
+  }
+  if(!hits.length){sHits=[];sOn=-1;sres.innerHTML=`<p class="srch-empty">Nothing matches "${esc(raw)}". Try a shorter word, an article number such as "14", or an Incoterm such as "FOB".</p>`;return;}
+  const groups=SX_GROUPS.map(g=>{const hs=hits.filter(h=>h.e.g===g).sort((a,b)=>a.s-b.s);return {g,hs,best:hs.length?hs[0].s:9};}).filter(x=>x.hs.length).sort((a,b)=>a.best-b.best);
+  sHits=[];let html="";
+  groups.forEach(x=>{
+    const show=x.hs.slice(0,6);
+    html+=`<div class="srch-g">${esc(x.g)}${x.hs.length>6?`<span>${x.hs.length} matches, showing 6</span>`:""}</div>`;
+    show.forEach(({e})=>{const i=sHits.length;sHits.push(e);
+      const href=(e.r==="home"?"/":"/"+e.r)+e.h;
+      html+=`<a class="srch-hit" id="sh-${i}" data-i="${i}" href="${href}"><b>${hl(e.t,toks)}</b><span>${hl(snip(e.b,toks),toks)}</span></a>`;});
+  });
+  sres.innerHTML=html;sOn=-1;setOn(0);
+}
+function setOn(i){if(!sHits.length)return;sOn=(i+sHits.length)%sHits.length;sres.querySelectorAll(".srch-hit").forEach(a=>a.classList.toggle("on",+a.dataset.i===sOn));const a=$("sh-"+sOn);if(a.scrollIntoView)try{a.scrollIntoView({block:"nearest"})}catch(_){}}
+function srchOpen(){if(!srch.hidden)return;setMenu(false);srch.hidden=false;document.documentElement.style.overflow="hidden";srchRun();setTimeout(()=>{try{sq.focus();sq.select()}catch(_){}},10);}
+function srchClose(back){srch.hidden=true;document.documentElement.style.overflow="";if(back!==false)try{sbtn.focus()}catch(_){}}
+function srchGo(e,ev){
+  const live=!!document.documentElement.dataset.page;
+  if(live&&e.r!==curPage())return;            /* let the browser follow the link */
+  if(ev)ev.preventDefault();
+  srchClose(false);
+  if(!live){show(e.r);try{history.replaceState(null,"","#"+e.r)}catch(_){}}
+  else if(e.h){try{history.replaceState(null,"",e.h)}catch(_){}}
+  if(e.h)setTimeout(()=>applyHash(e.h),live?0:80);else if(live)toTop(e.r);
+}
+sbtn.addEventListener("click",srchOpen);
+$("srch-close").addEventListener("click",()=>srchClose());
+srch.addEventListener("click",e=>{if(e.target===srch)srchClose();});
+sq.addEventListener("input",srchRun);
+sres.addEventListener("click",e=>{
+  const s=e.target.closest("[data-sug]");if(s){sq.value=s.dataset.sug;srchRun();sq.focus();return;}
+  const a=e.target.closest(".srch-hit");if(!a)return;e.stopPropagation();srchGo(sHits[+a.dataset.i],e);
+},true);
+sq.addEventListener("keydown",e=>{
+  if(e.key==="ArrowDown"){e.preventDefault();setOn(sOn+1);}
+  else if(e.key==="ArrowUp"){e.preventDefault();setOn(sOn-1);}
+  else if(e.key==="Enter"&&sHits.length){e.preventDefault();const h=sHits[Math.max(0,sOn)];const live=!!document.documentElement.dataset.page;
+    if(live&&h.r!==curPage()){location.href=(h.r==="home"?"/":"/"+h.r)+h.h;}else srchGo(h,null);}
+});
+document.addEventListener("keydown",e=>{
+  if(e.key==="Escape"&&!srch.hidden){e.preventDefault();srchClose();return;}
+  const tg=e.target,typing=tg&&(tg.isContentEditable||/^(INPUT|TEXTAREA|SELECT)$/.test(tg.tagName));
+  if((e.key==="/"&&!typing&&!e.ctrlKey&&!e.metaKey&&!e.altKey)||((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==="k")){e.preventDefault();srchOpen();}
+});
+
 /* ---------- start ---------- */
 const start=document.documentElement.dataset.page||"home";
 show(start);
-const mA=/^#art-(\d{1,2})$/.exec(location.hash);if(start==="ucp-600"&&mA)setTimeout(()=>openArticle(mA[1]),60);
+if(/^#(art|find)-/.test(location.hash))setTimeout(()=>applyHash(location.hash),60);
 })();
