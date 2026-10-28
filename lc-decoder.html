@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en-IN" data-page="lc-decoder">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>LC decoder: MT700 and MT707 · Mukul Chopra</title>
+<meta name="description" content="Paste an MT700 letter of credit or MT707 amendment and get a plain-English reading, watch-outs and a document checklist. Runs in your browser.">
+<link rel="canonical" href="https://mukulchopra.in/lc-decoder">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Mukul Chopra">
+<meta property="og:title" content="LC decoder: MT700 and MT707 · Mukul Chopra">
+<meta property="og:description" content="Paste an MT700 letter of credit or MT707 amendment and get a plain-English reading, watch-outs and a document checklist. Runs in your browser.">
+<meta property="og:url" content="https://mukulchopra.in/lc-decoder">
+<meta property="og:image" content="https://mukulchopra.in/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#0E1B33">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="/site.css?v=5af9dccd">
+</head>
+<body>
+<div id="top-anchor" aria-hidden="true"></div>
+<header class="site">
+  <div class="wrap bar">
+    <a class="brand"  href="/" data-route="home"><span class="mono-mark">MC</span>Mukul Chopra</a>
+    <button class="menu-btn" id="menu-btn" aria-label="Open menu" aria-expanded="false" aria-controls="main-menu"><span></span><span></span><span></span></button>
+    <nav class="menu" id="main-menu" aria-label="Main">
+      <a href="/" data-route="home">Home</a>
+      <a href="/trade-finance" data-route="trade-finance">Trade Finance</a>
+      <a href="/tools" data-route="tools">Tools</a>
+      <a href="/blog" data-route="blog">Blog</a>
+      <a href="/contact" data-route="contact">Contact</a>
+    </nav>
+    <button class="srch-btn" id="srch-btn" type="button" aria-label="Search the site" aria-haspopup="dialog"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.6-3.6"/></svg><span class="srch-lbl">Search</span><kbd>/</kbd></button>
+  </div>
+</header>
+<div class="srch" id="srch" hidden>
+  <div class="srch-panel" role="dialog" aria-modal="true" aria-label="Search the site">
+    <div class="srch-top"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.6-3.6"/></svg><input id="srch-q" type="search" placeholder="Search articles, Incoterms, terms or tools" autocomplete="off" spellcheck="false" aria-label="Search the site" aria-controls="srch-res"><button class="srch-close" id="srch-close" type="button" aria-label="Close search">Close</button></div>
+    <div class="srch-res" id="srch-res"></div>
+  </div>
+</div>
+
+<main class="wrap">
+<section class="page" id="page-lc-decoder">
+  <div class="block band">
+    <a class="crumb" href="/tools" data-route="tools">← Tools</a>
+    <p class="eyebrow">Trade finance tool</p>
+    <h1>LC decoder</h1>
+    <p class="lede">Paste an MT700 letter of credit or an MT707 amendment. Get a plain-English reading, red and amber watch-outs, and a checklist of the documents you must present.</p>
+    <p class="dec-priv"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"></rect><path d="M8 11V7a4 4 0 0 1 8 0v4"></path></svg>Runs entirely in your browser. Nothing you paste is uploaded, sent or stored.</p>
+  </div>
+  <div class="panel dec-in-panel no-print">
+    <div class="field"><label for="dec-in">LC text (MT700, with any MT701 continuation, or MT707)</label>
+      <textarea id="dec-in" rows="12" spellcheck="false" autocomplete="off" placeholder=":40A:IRREVOCABLE
+:20:ABC123
+:31C:261028
+:40E:UCP LATEST VERSION
+:31D:270115INDIA
+…"></textarea></div>
+    <div class="cta-row"><button type="button" class="btn" id="dec-go">Decode</button><button type="button" class="btn ghost" id="dec-clear">Clear</button></div>
+    <div class="dec-samples" id="dec-samples"><span class="muted">Or try a sample (made-up LCs):</span>
+      <button type="button" class="chip" data-sample="sight">Sight LC</button>
+      <button type="button" class="chip" data-sample="usance">Usance LC</button>
+      <button type="button" class="chip" data-sample="risky">LC with problems</button>
+      <button type="button" class="chip" data-sample="amend">Amendment (MT707)</button>
+    </div>
+    <p class="muted small">Works with the SWIFT format (<code>:31D:</code>) and most bank printouts (<code>31D: Date and Place of Expiry</code>). You can remove names before pasting; the decoder doesn't need them.</p>
+  </div>
+  <div class="dec-out" id="dec-out" aria-live="polite" hidden=""></div>
+  <div class="dec-more no-print"><p class="muted">New to MT700 fields? Read the <a href="/ucp-600" data-route="ucp-600">MT700 field guide on the UCP 600 page</a>, or work out your deadlines with the <a href="/tool-lc" data-route="tool-lc">LC date calculator</a>.</p></div>
+</section>
+</main>
+
+<footer class="site-foot">
+  <div class="wrap foot-grid">
+    <div class="foot-brand">
+      <a class="brand" href="/" data-route="home"><span class="mono-mark">MC</span>Mukul Chopra</a>
+      <p>Banker · Finance professional · Trade finance enthusiast</p>
+      <div class="foot-social">
+        <a href="https://www.linkedin.com/in/mukul-chopra-322913187" target="_blank" rel="noopener" aria-label="LinkedIn"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M4.98 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5zM3 9.5h4V21H3zM9.5 9.5h3.8v1.6h.1c.5-1 1.8-2 3.8-2 4 0 4.8 2.6 4.8 6V21h-4v-5.2c0-1.2 0-2.9-1.8-2.9s-2 1.4-2 2.8V21h-4z"/></svg></a>
+        <a href="https://www.instagram.com/mukul.chopra1/" target="_blank" rel="noopener" aria-label="Instagram"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor"/></svg></a>
+      </div>
+    </div>
+    <nav class="foot-col" aria-label="Site">
+      <h4>Site</h4>
+      <a href="/" data-route="home">Home</a>
+      <a href="/trade-finance" data-route="trade-finance">Trade Finance</a>
+      <a href="/tools" data-route="tools">Tools</a>
+      <a href="/blog" data-route="blog">Blog</a>
+      <a href="/contact" data-route="contact">Contact</a>
+    </nav>
+    <nav class="foot-col" aria-label="Trade finance">
+      <h4>Trade finance</h4>
+      <a href="/ucp-600" data-route="ucp-600">UCP 600</a>
+      <a href="/isbp-821" data-route="isbp-821">ISBP 821</a>
+      <a href="/urdg-758" data-route="urdg-758">URDG 758</a>
+      <a href="/incoterms" data-route="incoterms">Incoterms 2020</a>
+      <a href="/case-studies" data-route="case-studies">Case studies</a>
+    </nav>
+    <nav class="foot-col" aria-label="Tools">
+      <h4>Tools</h4>
+      <a href="/tool-emi" data-route="tool-emi">EMI calculator</a>
+      <a href="/tool-elig" data-route="tool-elig">Loan eligibility</a>
+      <a href="/tool-lc" data-route="tool-lc">LC date calculator</a>
+      <a href="/tool-usance" data-route="tool-usance">Usance bill maturity</a>
+    </nav>
+  </div>
+  <div class="wrap foot-base"><span>© 2026 Mukul Chopra · Delhi, India</span><span>Last updated October 2026</span></div>
+</footer>
+<script src="/site.js?v=f19846c0"></script>
+</body>
+</html>

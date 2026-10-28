@@ -538,7 +538,7 @@ document.querySelectorAll("[data-tabs]").forEach(bar=>{
 });
 
 /* ---------- routing ---------- */
-const TOOL_SUB=["tool-emi", "tool-elig", "tool-prepay", "tool-lc", "tool-usance", "tool-sip", "tool-fd", "tool-cmp"];
+const TOOL_SUB=["lc-decoder","tool-emi", "tool-elig", "tool-prepay", "tool-lc", "tool-usance", "tool-sip", "tool-fd", "tool-cmp"];
 const PAGES=["home","trade-finance","ucp-600","isbp-821","urdg-758","urc-522","urr-725","incoterms","isp98","eucp","case-studies","glossary","tools",...TOOL_SUB,"blog","blog-lc-discrepancies","blog-export-payment-methods","blog-prepay-or-invest","contact"];
 const BLOG_SUB=["blog-lc-discrepancies", "blog-export-payment-methods", "blog-prepay-or-invest"];
 const TF_SUB=["ucp-600","isbp-821","urdg-758","urc-522","urr-725","incoterms","isp98","eucp","case-studies","glossary"];
@@ -569,6 +569,7 @@ const PAGE_META={
  "case-studies":["Trade finance case studies","Real-world LC scenarios: discrepant or not? With the UCP 600 rule behind each answer."],
  "glossary":["Trade finance glossary","Quick definitions of trade finance terms."],
  "tools":["Calculators and tools","Free home loan, LC date, usance maturity, SIP and FD calculators."],
+ "lc-decoder":["LC decoder: MT700 and MT707","Paste an MT700 letter of credit or MT707 amendment and get a plain-English reading, watch-outs and a document checklist. Runs in your browser."],
  "tool-emi":["EMI calculator","Home loan EMI with total interest and a year-wise repayment schedule."],
  "tool-elig":["Home loan eligibility calculator","Estimate how much home loan your income can support."],
  "tool-prepay":["Home loan prepayment calculator","Interest saved and tenure reduced by a lump-sum prepayment."],
@@ -808,11 +809,15 @@ function applyHash(h){
   if((m=/^art-(\d{1,2})$/.exec(h))){
     if(page==="ucp-600")openArticle(m[1]);else if(page==="urc-522")openRuleArt("urc",m[1]);else if(page==="urdg-758")openRuleArt("urdg",m[1]);
   }else if(h.startsWith("find-"))findOnPage(page,h.slice(5));
+  else if((m=/^lc-(\d{4}-\d{2}-\d{2})?_(\d{4}-\d{2}-\d{2})_(\d{1,3})$/.exec(h))&&page==="tool-lc"){
+    $("lc-lsd").value=m[1]||"";$("lc-ship").value=m[1]||isoD(new Date());$("lc-exp").value=m[2];$("lc-per").value=m[3];$("lc-pres").value="";
+    calcLC();const r=$("lc-last");if(r.scrollIntoView)setTimeout(()=>{try{r.closest(".panel").scrollIntoView({block:"start"})}catch(_){};flash(r.closest(".panel"))},120);
+  }
 }
 window.addEventListener("hashchange",()=>applyHash(location.hash));
 const SX=[];
 const sxAdd=(g,t,b,r,h,extra)=>SX.push(Object.assign({g,t,b,r,h:h||"",x:(g+" "+t+" "+b).toLowerCase(),tl:t.toLowerCase()},extra||{}));
-Object.keys(PAGE_META).filter(p=>p!=="home").forEach(p=>sxAdd(p.startsWith("blog")?"Blog":"Pages and tools",PAGE_META[p][0],PAGE_META[p][1],p,"",{k:p.startsWith("tool")?"calculator":p.startsWith("blog-")?"blog post article":""}));
+Object.keys(PAGE_META).filter(p=>p!=="home").forEach(p=>sxAdd(p.startsWith("blog")?"Blog":"Pages and tools",PAGE_META[p][0],PAGE_META[p][1],p,"",{k:p.startsWith("tool")?"calculator":p==="lc-decoder"?"mt700 mt707 mt701 swift letter of credit amendment decode checker tool":p.startsWith("blog-")?"blog post article":""}));
 UCP.forEach(a=>sxAdd("UCP 600","Art. "+a[0]+" · "+a[1],a[3],"ucp-600","#art-"+a[0],{n:a[0],set:"ucp"}));
 MT.forEach(m=>sxAdd("MT700 fields","Field "+m[0]+" · "+m[1],m[2],"ucp-600","#find-"+m[0]));
 DISC.forEach(d=>sxAdd("Common discrepancies",d[0],d[1],"ucp-600","#find-"+d[0]));
@@ -888,8 +893,621 @@ document.addEventListener("keydown",e=>{
   if((e.key==="/"&&!typing&&!e.ctrlKey&&!e.metaKey&&!e.altKey)||((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==="k")){e.preventDefault();srchOpen();}
 });
 
+/* ---------- LC decoder (MT700 / MT701 / MT707) ---------- */
+const DEC_NAMES={
+ "27":"Sequence of total","40A":"Form of documentary credit","20":"Documentary credit number","21":"Receiver's reference","23":"Reference / issuing bank's reference",
+ "31C":"Date of issue","40E":"Applicable rules","31D":"Date and place of expiry","51A":"Applicant bank","51D":"Applicant bank","50":"Applicant","59":"Beneficiary","59A":"Beneficiary",
+ "32B":"Currency code, amount","39A":"Percentage credit amount tolerance","39C":"Additional amounts covered","41A":"Available with … by …","41D":"Available with … by …",
+ "42C":"Drafts at","42A":"Drawee","42D":"Drawee","42M":"Mixed payment details","42P":"Negotiation / deferred payment details","43P":"Partial shipments","43T":"Transhipment",
+ "44A":"Place of taking in charge / dispatch / receipt","44E":"Port of loading / airport of departure","44F":"Port of discharge / airport of destination","44B":"Place of final destination / delivery",
+ "44C":"Latest date of shipment","44D":"Shipment period","45A":"Description of goods and/or services","46A":"Documents required","47A":"Additional conditions",
+ "49G":"Special payment conditions for beneficiary","49H":"Special payment conditions for bank only","71D":"Charges","48":"Period for presentation in days","49":"Confirmation instructions",
+ "58A":"Requested confirmation party","58D":"Requested confirmation party","53A":"Reimbursing bank","53D":"Reimbursing bank","78":"Instructions to the paying / accepting / negotiating bank",
+ "57A":"'Advise through' bank","57B":"'Advise through' bank","57D":"'Advise through' bank","72Z":"Sender to receiver information","72":"Sender to receiver information",
+ "52A":"Issuing bank","52D":"Issuing bank","50B":"Non-bank issuer","26E":"Number of amendment","30":"Date of amendment","22A":"Purpose of message","23S":"Cancellation request",
+ "33B":"Decrease of documentary credit amount","45B":"Description of goods (amended)","46B":"Documents required (amended)","47B":"Additional conditions (amended)",
+ "49M":"Special payment conditions for beneficiary (amended)","49N":"Special payment conditions for bank only (amended)","71N":"Amendment charge payable by","79":"Narrative (amendment details)"
+};
+const DEC_TAGS=new Set(Object.keys(DEC_NAMES));
+const DEC_707=new Set(["26E","30","22A","23S","33B","45B","46B","47B","49M","49N","71N","79","52A","52D"]);
+const MT_GUIDE=new Set(MT.map(m=>m[0]));
+const DMON={JAN:0,FEB:1,MAR:2,APR:3,MAY:4,JUN:5,JUL:6,AUG:7,SEP:8,OCT:9,NOV:10,DEC:11};
+const DCOUNTRY=[
+ ["INDIA",["INDIA","MUMBAI","BOMBAY","NEW DELHI","DELHI","CHENNAI","MADRAS","KOLKATA","CALCUTTA","BENGALURU","BANGALORE","HYDERABAD","AHMEDABAD","PUNE","SURAT","LUDHIANA","TIRUPUR","TIRUPPUR","COIMBATORE","JAIPUR","MEERUT","KANPUR","NOIDA","GURUGRAM","GURGAON","KOCHI","COCHIN","VISAKHAPATNAM","MUNDRA","NHAVA SHEVA","JNPT","KANDLA","MORADABAD","PANIPAT","JALANDHAR","AGRA","VARANASI","INDORE","NAGPUR","VADODARA","RAJKOT","TUTICORIN","PIPAVAV","HAZIRA"]],
+ ["UAE",["UAE","U.A.E","UNITED ARAB EMIRATES","DUBAI","ABU DHABI","SHARJAH","AJMAN","JEBEL ALI","RAS AL KHAIMAH","FUJAIRAH"]],
+ ["SAUDI ARABIA",["SAUDI ARABIA","KSA","RIYADH","JEDDAH","DAMMAM"]],["OMAN",["OMAN","MUSCAT","SOHAR","SALALAH"]],["QATAR",["QATAR","DOHA","HAMAD PORT"]],["KUWAIT",["KUWAIT"]],["BAHRAIN",["BAHRAIN","MANAMA"]],
+ ["BANGLADESH",["BANGLADESH","DHAKA","CHITTAGONG","CHATTOGRAM"]],["SRI LANKA",["SRI LANKA","COLOMBO"]],["NEPAL",["NEPAL","KATHMANDU","BIRGUNJ"]],
+ ["CHINA",["CHINA","SHANGHAI","BEIJING","SHENZHEN","GUANGZHOU","NINGBO","QINGDAO"]],["HONG KONG",["HONG KONG"]],["SINGAPORE",["SINGAPORE"]],["MALAYSIA",["MALAYSIA","KUALA LUMPUR","PORT KLANG","PENANG"]],
+ ["INDONESIA",["INDONESIA","JAKARTA","SURABAYA"]],["VIETNAM",["VIETNAM","VIET NAM","HO CHI MINH","HANOI","HAIPHONG"]],["THAILAND",["THAILAND","BANGKOK","LAEM CHABANG"]],
+ ["JAPAN",["JAPAN","TOKYO","OSAKA","YOKOHAMA"]],["SOUTH KOREA",["KOREA","SEOUL","BUSAN"]],["UK",["UNITED KINGDOM","U.K.","LONDON","FELIXSTOWE","SOUTHAMPTON","ENGLAND"]],
+ ["USA",["UNITED STATES","U.S.A","USA","NEW YORK","LOS ANGELES","HOUSTON","NEW JERSEY"]],["CANADA",["CANADA","TORONTO","VANCOUVER","MONTREAL"]],
+ ["GERMANY",["GERMANY","HAMBURG","FRANKFURT","BREMEN","BREMERHAVEN"]],["NETHERLANDS",["NETHERLANDS","ROTTERDAM","AMSTERDAM"]],["BELGIUM",["BELGIUM","ANTWERP"]],
+ ["FRANCE",["FRANCE","PARIS","LE HAVRE","MARSEILLE"]],["ITALY",["ITALY","MILAN","GENOA","NAPLES"]],["SPAIN",["SPAIN","MADRID","BARCELONA","VALENCIA"]],
+ ["TURKIYE",["TURKEY","TURKIYE","ISTANBUL","MERSIN","IZMIR"]],["EGYPT",["EGYPT","CAIRO","ALEXANDRIA","PORT SAID"]],["KENYA",["KENYA","NAIROBI","MOMBASA"]],
+ ["NIGERIA",["NIGERIA","LAGOS","APAPA"]],["SOUTH AFRICA",["SOUTH AFRICA","JOHANNESBURG","DURBAN","CAPE TOWN"]],["TANZANIA",["TANZANIA","DAR ES SALAAM"]],
+ ["RUSSIA",["RUSSIA","MOSCOW","ST PETERSBURG","NOVOROSSIYSK"]],["AUSTRALIA",["AUSTRALIA","SYDNEY","MELBOURNE"]],["BRAZIL",["BRAZIL","SANTOS","SAO PAULO"]],["MEXICO",["MEXICO"]],
+ ["IRAN",["IRAN","BANDAR ABBAS","TEHRAN"]],["IRAQ",["IRAQ","BAGHDAD","UMM QASR","BASRA"]],["JORDAN",["JORDAN","AMMAN","AQABA"]],["PAKISTAN",["PAKISTAN","KARACHI","LAHORE"]]
+];
+function decCountry(t){
+  t=" "+String(t||"").toUpperCase().replace(/[^A-Z.]+/g," ")+" ";
+  let best=null,bi=-1;
+  DCOUNTRY.forEach(([c,keys])=>keys.forEach(k=>{const i=t.lastIndexOf(" "+k+" ");if(i>bi){bi=i;best=c}}));
+  return best;
+}
+function decDate(s){
+  s=String(s||"").toUpperCase();let m;
+  if((m=/(\d{4})-(\d{2})-(\d{2})/.exec(s)))return {d:new Date(+m[1],m[2]-1,+m[3]),rest:s.replace(m[0],"").trim()};
+  if((m=/(\d{1,2})[\/.](\d{1,2})[\/.](\d{4})/.exec(s)))return {d:new Date(+m[3],m[2]-1,+m[1]),rest:s.replace(m[0],"").trim()};
+  if((m=/(\d{1,2})[\s-]*(JAN|FEB|MAR|APR|MAY|JUN|JUL|AUG|SEP|OCT|NOV|DEC)[A-Z]*[\s,-]*(\d{4}|\d{2})\b/.exec(s))){const y=+m[3]<100?2000+ +m[3]:+m[3];return {d:new Date(y,DMON[m[2]],+m[1]),rest:s.replace(m[0],"").trim()};}
+  if((m=/^\s*(\d{2})(\d{2})(\d{2})/.exec(s))&&+m[2]>=1&&+m[2]<=12&&+m[3]>=1&&+m[3]<=31)return {d:new Date(2000+ +m[1],m[2]-1,+m[3]),rest:s.slice(m.index+m[0].length).trim()};
+  return null;
+}
+function decAmt(s){
+  const m=/([A-Z]{3})\s*([\d.,'\s]*\d[\d.,]*)/.exec(String(s||"").toUpperCase());if(!m)return null;
+  let n=m[2].replace(/[\s']/g,"");const lc=n.lastIndexOf(","),ld=n.lastIndexOf(".");
+  if(lc>=0&&ld>=0){n=lc>ld?n.replace(/\./g,"").replace(",","."):n.replace(/,/g,"")}
+  else if(lc>=0){n=(n.length-lc-1<=2)?n.replace(/,(?=\d{0,2}$)/,".").replace(/,/g,""):n.replace(/,/g,"")}
+  const v=parseFloat(n);return isNaN(v)?null:{ccy:m[1],v};
+}
+const decFmtAmt=a=>a?a.ccy+" "+a.v.toLocaleString(a.ccy==="INR"?"en-IN":"en-US",{minimumFractionDigits:2,maximumFractionDigits:2}):"–";
+const dayDiff=(a,b)=>Math.round((b-a)/864e5);
+const today0=()=>{const t=new Date();return new Date(t.getFullYear(),t.getMonth(),t.getDate())};
+const decName=(tag,type)=>type==="707"&&tag==="32B"?"Increase of documentary credit amount":(DEC_NAMES[tag]||"Field "+tag);
+const decWords=s=>String(s).toLowerCase().match(/[a-z]{3,}/g)||[];
+
+function decParse(raw){
+  let t=String(raw||"").replace(/\r/g,"");
+  let type=null;
+  const hb=/\{2:[IO](\d{3})/.exec(t);if(hb)type=hb[1];
+  if(!type){const mm=/\bMT\s?-?(700|701|707)\b/i.exec(t);if(mm)type=mm[1];}
+  const b4=/\{4:\s*\n?([\s\S]*?)\n?-\}/.exec(t);if(b4)t=b4[1];
+  t=t.replace(/\{[1235]:[^{}]*(\{[^{}]*\}[^{}]*)*\}/g,"");
+  const lines=t.split("\n");const fields=[];let cur=null;
+  for(const ln of lines){
+    const m=/^\s*(?:F|:)?\s*(\d{2}[A-Z]?)\s*:\s?(.*)$/.exec(ln);
+    if(m&&DEC_TAGS.has(m[1].toUpperCase())){
+      const tag=m[1].toUpperCase();let first=m[2]||"";
+      // printout labels: "31D: Date and Place of Expiry" or "Date and Place of Expiry: 261215 INDIA"
+      const nameW=decWords(DEC_NAMES[tag]).concat(["doc","documentary","credit","date","place"]);
+      const colon=first.lastIndexOf(":");
+      const tryLabel=s=>{const w=decWords(s);if(!w.length||/\d/.test(s))return false;const hit=w.filter(x=>nameW.includes(x)).length;return hit>=Math.max(1,Math.ceil(w.length*0.5));};
+      if(colon>0&&tryLabel(first.slice(0,colon)))first=first.slice(colon+1);
+      else if(tryLabel(first.replace(/[:.\-–]+\s*$/,"")))first="";
+      cur={tag,lines:[first.trim()]};fields.push(cur);
+    }else if(cur){cur.lines.push(ln.trim())}
+  }
+  const F={},order=[];
+  fields.forEach(f=>{const v=f.lines.join("\n").replace(/\n{3,}/g,"\n\n").trim();
+    if(f.tag in F){if(f.tag!=="27"&&f.tag!=="20")F[f.tag]+="\n"+v}else{F[f.tag]=v;order.push(f.tag)}});
+  if(!type||type==="701"){type=order.some(k=>DEC_707.has(k))?"707":(order.length?"700":null)}
+  if(type!=="707")type="700";
+  return {type,F,order,merged:fields.filter(f=>["45A","46A","47A"].includes(f.tag)).length>new Set(fields.filter(f=>["45A","46A","47A"].includes(f.tag)).map(f=>f.tag)).size};
+}
+const decGet=(F,...tags)=>{for(const t of tags)if(F[t]!=null&&F[t]!=="")return F[t];return ""};
+function decItems(text){
+  if(!text)return [];
+  const out=[];let cur="";
+  String(text).split("\n").forEach(l=>{
+    const m=/^\s*(?:\+|\d{1,2}\s*[.)]|\(\d{1,2}\)|[A-Z]\)|-\s)\s*(.*)$/.exec(l);
+    if(m){if(cur.trim())out.push(cur.trim());cur=m[1]}else cur+=(cur?" ":"")+l.trim();
+  });
+  if(cur.trim())out.push(cur.trim());
+  return out.length?out:[String(text).trim()];
+}
+function decIncoterm(F){
+  const src=[F["45A"],F["45B"],F["47A"],F["46A"]].filter(Boolean).join("\n").toUpperCase();
+  const m=/\b(EXW|FCA|FAS|FOB|CFR|CNF|C\s?&\s?F|CIF|CPT|CIP|DAP|DPU|DDP|DAT)\b[ ,]*([A-Z][A-Z ,.'-]{0,38})?/.exec(src);
+  if(!m)return null;
+  let term=m[1].replace(/\s/g,"");if(term==="CNF"||term==="C&F")term="CFR";
+  let place=(m[2]||"").replace(/\b(INCOTERMS?|AS PER|PORT|BASIS)\b.*$/,"").replace(/[ ,.-]+$/,"").trim();
+  const v=/INCOTERMS?\s*(\d{4})/.exec(src);
+  return {term,place,ver:v?v[1]:null,raw:m[0].trim()};
+}
+const DOC_TYPES=[
+ ["invoice",/COMMERCIAL INVOICE|\bINVOICE\b/,"Commercial invoice","18"],
+ ["cpbl",/CHARTER\s*PARTY/,"Charter party bill of lading","22"],
+ ["mm",/MULTIMODAL|COMBINED TRANSPORT/,"Multimodal transport document","19"],
+ ["swb",/SEA\s*WAYBILL|NON.?NEGOTIABLE SEA/,"Sea waybill","21"],
+ ["bl",/BILLS? OF LADING|\bB\s?\/\s?L\b/,"Bill of lading","20"],
+ ["awb",/AIR\s*WAY\s*BILL|\bAWB\b|AIR CONSIGNMENT/,"Air waybill","23"],
+ ["road",/\bROAD\b|\bRAIL\b|\bCMR\b|LORRY|TRUCK|RAILWAY RECEIPT/,"Road or rail transport document","24"],
+ ["ins",/INSURANCE/,"Insurance document","28"],
+ ["pl",/PACKING LIST/,"Packing list",""],
+ ["coo",/CERTIFICATE OF ORIGIN|ORIGIN CERTIFICATE|\bGSP\b|FORM A\b/,"Certificate of origin",""],
+ ["insp",/INSPECTION|SURVEY/,"Inspection certificate",""],
+ ["phyto",/PHYTO/,"Phytosanitary certificate",""],["fum",/FUMIGATION/,"Fumigation certificate",""],
+ ["health",/HEALTH|SANITARY|VETERINARY/,"Health certificate",""],["qual",/ANALYSIS|QUALITY|TEST REPORT/,"Quality or analysis certificate",""],
+ ["wt",/WEIGHT/,"Weight list or certificate",""],
+ ["benc",/BENEFICIARY'?S?\s*(CERTIFICATE|STATEMENT|DECLARATION)|WE (HEREBY )?CERTIFY|CERTIFYING THAT/,"Beneficiary's certificate",""],
+ ["adv",/SHIPMENT ADVICE|SHIPPING ADVICE|ADVICE OF SHIPMENT/,"Shipment advice",""],
+ ["courier",/COURIER|POST RECEIPT|POSTING/,"Courier or post receipt","25"],
+ ["draft",/\bDRAFTS?\b|BILL OF EXCHANGE/,"Draft",""]
+];
+const A_=(n,s)=>"Art. "+artBtn(n)+(s||"");
+const DOC_CHECKS={
+ invoice:()=>[`Issued by you, made out to the applicant, in the credit currency (${A_(18,"(a)")})`,`Goods description corresponds with field 45A (${A_(18,"(c)")})`,`Amount within the credit, including any tolerance (${A_(18,"(b)")}, ${A_(30)})`,"Shows the Incoterm, LC number and any other details the credit asks for"],
+ bl:()=>[`Dated on-board notation, unless it is a pre-printed "shipped on board" bill (${A_(20,"(a)(ii)")})`,"Ports of loading and discharge as in 44E and 44F",`Consignee, notify party and freight marking exactly as the credit says`,`Full set of originals, and no clause declaring the goods or packaging defective (${A_(27)})`,`Signed by the carrier, master or a named agent (${A_(20,"(a)(i)")})`],
+ cpbl:()=>[`Signed by the master, owner, charterer or a named agent (${A_(22)})`,"Shows shipment on board a named vessel at the port in 44E","Banks do not examine the charter party contract itself"],
+ mm:()=>[`Shows dispatch, taking in charge or shipment at the place in 44A or 44E, and the date (${A_(19)})`,"Final destination as in 44B or 44F","Consignee, notify party and freight marking as required; full set of originals"],
+ swb:()=>[`Same checks as a bill of lading (${A_(21)})`,"Not a document of title: the consignee named can collect the goods"],
+ awb:()=>[`Shows the goods accepted for carriage; the issue date is the shipment date unless the credit asks for a flight date (${A_(23)})`,"Airports as in 44E and 44F","The original for consignor or shipper",`Not a document of title: the named consignee can collect the goods`],
+ road:()=>[`Shows the place of dispatch and destination, and is signed or stamped by the carrier (${A_(24)})`,"Consignee as required"],
+ ins:()=>[`Dated no later than shipment, unless it shows cover from the shipment date (${A_(28,"(e)")})`,`At least 110% of the CIF or CIP value if the credit is silent, and in the credit currency (${A_(28,"(f)")})`,`Covers the risks the credit names (${A_(28,"(g)")})`,`A policy or certificate, not a cover note (${A_(28,"(c)")}); all originals presented`],
+ coo:()=>["Issued by the body the credit names, such as a chamber of commerce or export promotion council","Goods, origin and consignee details don't conflict with other documents","Allow extra time if it must be legalised or attested"],
+ insp:()=>["Issued by the agency the credit names: book the inspection early","Dated no later than shipment if it certifies pre-shipment inspection","If it must be signed or approved by the buyer, payment depends on the buyer: see the watch-outs"],
+ benc:()=>["Worded as the credit requires and signed by you","Whatever it certifies (for example, copies sent to the buyer) has actually happened, within any time stated"],
+ adv:()=>["Sent within the time stated, to the party named","Present the evidence the credit asks for, such as a copy of the email"],
+ courier:()=>[`Shows the courier's name, stamp or signature and the date of pick-up (${A_(25)})`],
+ draft:()=>["Drawn on the party in 42a, for the tenor in 42C","Amount in words and figures agree, and within the credit"],
+ other:()=>[`Issued by the party the credit names, with the content it requires; if silent, it must appear to fulfil its function (${A_(14,"(f)")})`,`Data does not conflict with the other documents (${A_(14,"(d)")})`]
+};
+["pl","phyto","fum","health","qual","wt"].forEach(k=>DOC_CHECKS[k]=DOC_CHECKS.other);
+function decDoc(item){
+  const U=item.toUpperCase();
+  let best=null;DOC_TYPES.forEach(d=>{const m=d[1].exec(U);if(m&&(!best||m.index<best.i))best={d,i:m.index};});
+  const ty=best?best.d:["other",null,"Other document",""];
+  const hi=[];let m;
+  const NUM={ONE:1,TWO:2,THREE:3,FOUR:4,FIVE:5,SIX:6};
+  if(/FULL SET/.test(U))hi.push("Full set of originals");
+  if((m=/\b(\d)\s*\/\s*(\d)\b(?=[^.]*ORIGINAL)/.exec(U)))hi.push(m[1]+"/"+m[2]+" originals");
+  const re=/\b(\d{1,2}|ONE|TWO|THREE|FOUR|FIVE|SIX)\b\s*(?:\([A-Z0-9]+\)\s*)?(ORIGINALS?|COPIES|COPY|FOLDS?)\b/g;
+  while((m=re.exec(U)))hi.push((NUM[m[1]]||m[1])+" "+m[2].toLowerCase().replace("folds","copies").replace("fold","copy"));
+  if((m=/IN (DUPLICATE|TRIPLICATE|QUADRUPLICATE)/.exec(U)))hi.push({DUPLICATE:"2",TRIPLICATE:"3",QUADRUPLICATE:"4"}[m[1]]+" (in "+m[1].toLowerCase()+")");
+  if(/\bSIGNED\b(?!\s+BY)/.test(U))hi.push("Signed");
+  if((m=/(?:MADE OUT )?TO (?:THE )?ORDER OF ([A-Z0-9' .&()-]{3,60}?)(?=,|\.|;| AND | NOTIFY| MARKED| SHOWING|$)/.exec(U)))hi.push("To the order of "+m[1].trim());
+  else if(/MADE OUT TO ORDER|\bTO ORDER\b/.test(U))hi.push("To order");
+  if((m=/CONSIGNED TO ([A-Z0-9' .&()-]{3,60}?)(?=,|\.|;| AND | NOTIFY| MARKED|$)/.exec(U)))hi.push("Consigned to "+m[1].trim());
+  if((m=/NOTIFY(?:ING)?(?: PARTY)?[:\s]+([A-Z0-9' .&()-]{3,50}?)(?=,|\.|;| AND | MARKED|$)/.exec(U)))hi.push("Notify "+m[1].trim().toLowerCase().replace(/\b\w/g,c=>c.toUpperCase()));
+  if((m=/FREIGHT (PREPAID|COLLECT|PAYABLE AT DESTINATION|TO PAY)/.exec(U)))hi.push("Freight "+m[1].toLowerCase());
+  if(/CLEAN ON BOARD|SHIPPED ON BOARD|\bON BOARD\b/.test(U))hi.push("On board");
+  if(/BLANK ENDORSED|ENDORSED IN BLANK/.test(U))hi.push("Blank endorsed");
+  if((m=/(\d{3})\s*(?:%|PCT|PERCENT)/.exec(U)))hi.push(m[1]+"% cover");
+  if((m=/INSTITUTE CARGO CLAUSES\s*\(?([ABC])\)?/.exec(U)))hi.push("ICC ("+m[1]+")");
+  if(/\bALL RISKS\b/.test(U))hi.push("All risks");
+  if(/\bWAR\b/.test(U))hi.push("War");if(/STRIKES?|SRCC/.test(U))hi.push("Strikes");
+  if((m=/ISSUED BY ([A-Z][A-Z0-9' .&()-]{3,60}?)(?=,|\.|;| CERTIFY| SHOWING| STATING| AND |$)/.exec(U)))hi.push("Issued by "+m[1].trim());
+  if(/LEGALI[SZ]ED|ATTESTED|CONSULAR|EMBASSY|CONSULATE/.test(U))hi.push("Legalised / attested");
+  return {key:ty[0],name:ty[2],art:ty[3],text:item,hi:[...new Set(hi)]};
+}
+const decSnip=(text,re)=>{const U=String(text);const m=re.exec(U.toUpperCase());if(!m)return "";let s=Math.max(0,U.lastIndexOf(".",m.index)+1),e=U.indexOf(".",m.index+m[0].length);if(e<0)e=U.length;let out=U.slice(s,e+1).replace(/\s+/g," ").trim();if(out.length>220)out=out.slice(0,217)+"…";return out;};
+const SOFT=[
+ [/(SIGNED|ISSUED|COUNTERSIGNED|APPROVED|AUTHENTICATED|VERIFIED|ENDORSED)\s+BY\s+(THE\s+)?(APPLICANT|BUYER|OPENER|IMPORTER)\b|(APPLICANT|BUYER)'?S?\s+(SIGNATURE|APPROVAL|REPRESENTATIVE)/,"A document must be signed or approved by the buyer","The buyer can stop you complying simply by not signing. This is a classic soft clause: ask for it to be removed, or for the certificate to be issued by an independent inspection agency."],
+ [/SUBJECT TO (THE\s+)?(APPLICANT|BUYER)'?S?\s+(APPROVAL|ACCEPTANCE|CONFIRMATION|SATISFACTION|CONSENT)/,"Something is subject to the buyer's approval","Payment then depends on the buyer, not the bank. Ask for this clause to be removed before you ship."],
+ [/(CREDIT|L\/?C|D\/?C)\s+(WILL\s+BE(COME)?|IS|SHALL\s+BE(COME)?)\s+(OPERATIVE|EFFECTIVE|AVAILABLE|ACTIVATED)\s+(ONLY\s+)?(UPON|AFTER|ON|SUBJECT)/,"The credit is not yet operative","The bank's undertaking starts only when a further event happens, usually an amendment from the buyer's side. Don't ship until you receive that amendment."],
+ [/(WILL\s+BE|TO\s+BE|SHALL\s+BE)\s+(ADVISED|NOMINATED|NOTIFIED|INFORMED|INDICATED)\s+(LATER|SUBSEQUENTLY|BY\s+(MEANS\s+OF\s+)?(AN\s+)?AMENDMENT|BY\s+(THE\s+)?(APPLICANT|BUYER))/,"A key detail will be advised later","Until that detail arrives (often the vessel, shipping line or inspection agency), you cannot comply, and the buyer decides when it arrives. Ask for it to be fixed in the credit now."],
+ [/PAYMENT\b[^.]{0,40}\b(UPON|AFTER|ON|SUBJECT TO)\s+(THE\s+)?(RECEIPT|ARRIVAL|CLEARANCE|INSPECTION|ACCEPTANCE|SALE)\s+OF\s+(THE\s+)?GOODS|(UPON|AFTER)\s+(ARRIVAL|RECEIPT|INSPECTION)\s+OF\s+(THE\s+)?GOODS/,"Payment is linked to the goods arriving or being inspected","An LC should pay against documents, not against the goods. A condition like this makes payment depend on events the buyer controls."],
+ [/(UPON|AFTER|SUBJECT TO|PENDING)\s+(THE\s+)?(RECEIPT\s+OF\s+)?(FUNDS|PAYMENT|COVER)\s+FROM\s+(THE\s+)?(APPLICANT|BUYER)|(UPON|AFTER|SUBJECT TO|PENDING)\s+(THE\s+)?(RECEIPT\s+OF\s+)?(AN?\s+)?IMPORT\s+(LICEN[CS]E|PERMIT)/,"Payment depends on the buyer's funds or an import licence","The bank is not giving a firm undertaking. If the funds or licence never come, you are not paid."],
+ [/(1\/3|ONE\s*(\(1\))?\s*(\/\s*THREE|OF\s*(THE\s*)?THREE)|ONE\s+ORIGINAL)[^.]{0,80}(SENT|DESPATCHED|DISPATCHED|COURIERED|FORWARDED|DIRECTLY)[^.]{0,40}(TO\s+(THE\s+)?(APPLICANT|BUYER|CONSIGNEE))/,"One original bill of lading goes directly to the buyer","With one original in hand, the buyer can take delivery of the goods without paying. If your documents are then refused, you have lost control of the goods."]
+];
+function decCheck(P){
+  const F=P.F,out=[],add=(lvl,t,d,ref,f)=>out.push({lvl,t,d,ref:ref||"",f:f||[]});
+  const td=today0();
+  const T=k=>String(F[k]||"").toUpperCase();
+  const all=["45A","45B","46A","46B","47A","47B","49G","49M","78"].map(T).join("\n");
+  const SUB={};
+  if(P.type==="707"){
+    add("info","You can accept or reject this amendment",`Until you accept, the original terms still apply to you. Presenting documents that comply with the amended terms counts as acceptance. You must accept all of it or none of it: accepting only part is treated as rejection (${A_(10,"(c)")}, ${A_(10,"(e)")}).`,"",[]);
+    if(F["23S"])add("red","The issuing bank asks to cancel the credit",`A credit cannot be cancelled without your agreement (${A_(10,"(a)")}). Don't agree if you have shipped, or are about to.`,"",["23S"]);
+    if(/DEEMED\s+(TO\s+BE\s+)?ACCEPTED|UNLESS\s+REJECTED|IF\s+NOT\s+REJECTED|IN\s+FORCE\s+UNLESS/.test(all))add("amber","\"Deemed accepted unless rejected\" clause",`A provision that an amendment takes effect unless you reject it within a set time is disregarded (${A_(10,"(f)")}). Your silence is not acceptance, but reply clearly either way.`,"",["47B"]);
+    if(F["33B"])add("amber","The credit amount is reduced",`New decrease: ${esc(decFmtAmt(decAmt(F["33B"])))}. Check the quantity or price changes in 45B match, and that the reduced amount still covers your shipment.`,"",["33B"]);
+    if(F["32B"])add("info","The credit amount is increased",`Increase: ${esc(decFmtAmt(decAmt(F["32B"])))}. Check that 45B shows the matching quantity or price change.`,"",["32B"]);
+    const e=decDate(F["31D"]);if(e){const d=dayDiff(td,e.d);add(d<14?"amber":"info","New expiry date",`The credit now expires on ${fmtD(e.d)}${e.rest?" at "+esc(e.rest):""}${d>=0?`, ${d} days from today`:", which has already passed"}. Check this still works for your shipment.`,"",["31D"]);}
+    const s=decDate(F["44C"]);if(s||F["44D"])add("amber","Shipment date or period changed",`${s?`Latest shipment is now ${fmtD(s.d)}. `:""}Check with your forwarder that you can meet it before you accept.`,"",[s?"44C":"44D"]);
+    ["45B","46B","47B","49M"].forEach(k=>{if(F[k])add("amber",{"45B":"Goods description changed","46B":"Documents required changed","47B":"Additional conditions changed","49M":"Special payment conditions changed"}[k],"Read the change below and check it with your forwarder and anyone who issues documents for you. <b>/ADD/</b> adds text, <b>/DELETE/</b> removes it, and <b>/REPALL/</b> replaces the whole field.","",[k]);});
+    if(/BENE/.test(T("71N")))add("amber","Amendment charges are for your account","Field 71N says the beneficiary pays the charges for this amendment. If you didn't ask for it, you can negotiate this.","",["71N"]);
+    if(F["43P"]||F["43T"])add("info","Partial shipment or transhipment rules changed","Check the new value in 43P / 43T against how you plan to ship.","",["43P","43T"].filter(k=>F[k]));
+    if(F["40E"])add("amber","Applicable rules changed","The rules governing the credit are being changed. Read field 40E carefully.","",["40E"]);
+    if(F["49"])add("info","Confirmation instructions changed",`Field 49 now says: ${esc(F["49"])}.`,"",["49"]);
+  }else{
+    // completeness
+    const need=[["20","LC number"],["31D","expiry"],["32B","amount"],["41A|41D","availability"],["45A","goods description"],["46A","documents required"]];
+    const miss=need.filter(([k])=>!k.split("|").some(x=>F[x])).map(([k,n])=>k.split("|")[0].replace(/A$/,(k.includes("41")?"a":"A"))+" ("+n+")");
+    if(miss.length)add("amber","Some fields were not found","Missing: "+miss.join(", ")+". If you pasted only part of the LC, the results below will be incomplete.","",[]);
+    if(/1\/[2-8]/.test(T("27"))&&!P.merged)add("info","The LC continues in another message",`Field 27 says ${esc(F["27"])}: an MT701 continuation follows. Paste it below the MT700 so 45A, 46A and 47A are complete.`,"",["27"]);
+    // form and rules
+    if(/\bREVOCABLE/.test(T("40A"))&&!/IRREVOCABLE/.test(T("40A")))add("red","The credit says it is revocable",`It could be cancelled without notice. UCP 600 credits are irrevocable (${A_(3)}); ask for this to be corrected.`,"",["40A"]);
+    if(/TRANSFERABLE/.test(T("40A")))add("info","Transferable credit",`It can be transferred to a second beneficiary, such as your supplier (${A_(38)}).`,"",["40A"]);
+    const r=T("40E");
+    if(!r)add("amber","No applicable rules stated","Field 40E is missing. A credit should say it is subject to UCP 600 (\"UCP LATEST VERSION\").","",[]);
+    else if(/ISP/.test(r))add("amber","Subject to ISP98, not UCP 600","This looks like a standby credit. Several checks on this page assume UCP 600 and may not apply.","",["40E"]);
+    else if(/OTHR/.test(r))add("amber","Subject to other rules","Field 40E says OTHR. Read the narrative to see which rules apply before relying on UCP 600.","",["40E"]);
+    else if(/EUCP/.test(r))add("info","Electronic presentation allowed (eUCP)","The eUCP applies alongside UCP 600: check the format and place for electronic records in the credit.","",["40E"]);
+    // dates
+    const ex=decDate(F["31D"]),ls=decDate(F["44C"]),is=decDate(F["31C"]);
+    const pm=/(\d{1,3})/.exec(T("48"));const per=pm?+pm[1]:null;const P2=per||21;
+    if(ex&&dayDiff(td,ex.d)<0)add("red","The credit has expired",`The expiry date was ${fmtD(ex.d)}.`,"",["31D"]);
+    if(ls&&ex&&ls.d>ex.d)add("red","Latest shipment is after expiry",`Shipping on the latest date (${fmtD(ls.d)}) would leave no time to present documents before expiry (${fmtD(ex.d)}). Ask for an amendment.`,"",["44C","31D"]);
+    else if(ls&&ex){const gap=dayDiff(ls.d,ex.d);
+      if(gap<P2)add(gap<10?"amber":"info",`Only ${gap} days between latest shipment and expiry`,`Documents must be presented within ${P2} days of shipment${per?"":" (the default, as 48 is silent)"}, but never after expiry (${A_(14,"(c)")}, ${A_(6,"(e)")}). If you ship on ${fmtD(ls.d)}, your real deadline is the expiry date, ${gap} days later. Shipping earlier gives you more time.`,"",["44C","31D","48"]);}
+    if(ls&&dayDiff(td,ls.d)<0)add("amber","The latest shipment date has passed",`It was ${fmtD(ls.d)}. Unless you have already shipped, you need an amendment. It is never extended for a holiday (${A_(29,"(c)")}).`,"",["44C"]);
+    if(F["44C"]&&F["44D"])add("amber","Both 44C and 44D are present","A credit should give either a latest shipment date or a shipment period, not both. Ask which applies.","",["44C","44D"]);
+    if(!F["44C"]&&!F["44D"])add("info","No latest shipment date",`You can ship up to the expiry date, but documents must still be presented within ${P2} days of shipment and before expiry.`,"",[]);
+    if(!F["48"])add("info","No presentation period stated",`The default applies: documents containing an original transport document must be presented within 21 calendar days after shipment, and before expiry (${A_(14,"(c)")}).`,"",[]);
+    else if(per&&per<10)add("amber",`Short presentation period: ${per} days`,"Getting the bill of lading, certificates and your bank's check done in this time is tight. Ask for at least 21 days if you can.","",["48"]);
+    // expiry place & availability
+    const place=ex?ex.rest:T("31D");const bc=decCountry(F["59"]||F["59A"])||"INDIA";const ac=decCountry(F["50"]);
+    const counters=/COUNTER|ISSUING BANK/.test(place.toUpperCase());const epC=counters?(ac||"ABROAD"):decCountry(place);
+    const av=T("41A")+" "+T("41D");const mode=(/BY\s+(PAYMENT|ACCEPTANCE|NEGOTIATION|DEF\.?\s*PAYMENT|DEFERRED PAYMENT|MIXED\s+P(?:YMT|AYMENT))/.exec(av)||[])[1]||"";
+    const avIss=/ISSUING BANK|OURSELVES|\bUS\b|OUR COUNTERS/.test(av)||(ac&&!/ANY BANK/.test(av)&&decCountry(av)===ac);
+    const abroad=epC&&epC!==bc;
+    if(abroad&&avIss)add("red","Expires abroad and available only with the issuing bank",`The credit pays only when the issuing bank receives complying documents abroad before expiry; your bank only forwards them. Courier time comes out of your presentation period. Ask for the credit to be available with any bank in ${bc==="INDIA"?"India":"your country"}, by negotiation, and to expire there.`,"",["31D","41A","41D"].filter(k=>F[k]));
+    else if(abroad)add("amber",`Expires abroad${epC&&epC!=="ABROAD"?" ("+epC.toLowerCase().replace(/\b\w/g,c=>c.toUpperCase()).replace("Uae","UAE").replace("Usa","USA").replace("Uk","UK")+")":""}`,`Documents must reach ${esc(place)||"the place in 31D"} by the expiry date, not just leave your bank. Allow for your bank's checking time and courier time.`,"",["31D"]);
+    else if(!epC&&place)add("info","Check where the credit expires",`Field 31D gives the place as "${esc(place)}". If that is outside your country, documents must reach it by the expiry date.`,"",["31D"]);
+    if(avIss&&!abroad)add("info","Available only with the issuing bank","Only the issuing bank pays under the credit; your bank forwards the documents. Payment comes once the issuing bank has checked them.","",["41A","41D"].filter(k=>F[k]));
+    // drafts
+    const dr=T("42A")+" "+T("42D");const ap1=(T("50").split("\n")[0]||"").replace(/[^A-Z]/g,"").slice(0,12);
+    if(dr.trim()&&(/APPLICANT|BUYER|OPENER/.test(dr)||(ap1.length>5&&dr.replace(/[^A-Z]/g,"").includes(ap1))))add("red","Draft drawn on the applicant",`A credit must not be available by a draft drawn on the applicant (${A_(6,"(c)")}). Such a draft is treated only as an additional document; ask for 42a to name the issuing bank or the nominated bank.`,"",["42A","42D"].filter(k=>F[k]));
+    if(/DEF/.test(mode)&&F["42C"])add("amber","Drafts asked for under deferred payment","A deferred payment credit doesn't use drafts. Ask the bank to clarify fields 41a and 42C.","",["41A","41D","42C"].filter(k=>F[k]));
+    const us=/(\d{1,3})\s*DAYS?\s*(AFTER|FROM)\s*(SIGHT|THE\s+)?(DATE\s+OF\s+)?(SIGHT|B\s?\/\s?L|BILL OF LADING|SHIPMENT|INVOICE|ACCEPTANCE|AIR\s*WAY\s*BILL|AWB|PRESENTATION)?/.exec(T("42C")+" "+T("42P")+" "+T("42M"));
+    const usPaS=/(USANCE|DISCOUNT|ACCEPTANCE|INTEREST)[^.]{0,60}(CHARGES|INTEREST|COMMISSION|COST)?[^.]{0,40}(FOR|BORNE BY|ON)\s+(THE\s+)?(APPLICANT|BUYER|OPENER)|PAYABLE\s+(ON\s+|AT\s+)?SIGHT\s+BASIS|USANCE\s+PAYABLE\s+AT\s+SIGHT/.test(all);
+    if(us&&usPaS)add("info","Usance credit payable at sight",`The draft is at ${us[1]} days, but the credit says the buyer bears the discount or interest. You should be paid at sight, without a deduction for interest.`,"",["42C","47A"].filter(k=>F[k]));
+    else if(us)add("info",`Usance credit: ${us[1]} days`,`You are paid at maturity, ${us[1]} days ${us[2].toLowerCase()} ${(us[5]||us[3]||"").toLowerCase().replace("b / l","B/L").replace("b/l","B/L").trim()||"the stated event"}, unless your bank discounts the bill. Discounting gets you the money earlier, minus interest.`,"",["42C"]);
+    // tolerance
+    const amt=decAmt(F["32B"]);const tol=/(\d{1,2})\s*\/\s*(\d{1,2})/.exec(T("39A"));
+    if(/\b(ABOUT|APPROXIMATELY|APPROX\.?|CIRCA)\b/.test(T("45A")))add("info","\"About\" or \"approximately\" in the goods description",`These words allow a tolerance of 10% more or less on the quantity, amount or unit price they refer to (${A_(30,"(a)")}).`,"",["45A"]);
+    // shipments
+    const p43=T("43P"),t43=T("43T");
+    const inst=/INSTAL+MENT|\bIN\s+(TWO|THREE|FOUR|\d)\s+(LOTS|SHIPMENTS|CONSIGNMENTS)|MONTHLY SHIPMENT|WEEKLY SHIPMENT|SHIPMENT SCHEDULE/.test(all+" "+T("44D"));
+    if(/NOT\s+ALLOWED|PROHIBITED/.test(p43)&&inst)add("amber","Partial shipments not allowed, but the credit mentions lots or instalments","These conflict. Ask the bank which applies before you ship.","",["43P"]);
+    else if(inst)add("amber","Shipment in instalments",`If any instalment is not shipped within its period, the credit stops being available for that and every later instalment (${A_(32)}).`,"",["44D","47A"].filter(k=>F[k]));
+    if(/NOT\s+ALLOWED|PROHIBITED/.test(t43))add("info","Transhipment not allowed",`Even so, a bill of lading showing transhipment is acceptable if the goods are shipped in containers, as shown on the bill of lading (${A_(20,"(c)")}). Tell your forwarder about this condition.`,"",["43T"]);
+    // incoterm & documents
+    const inc=decIncoterm(F);const docs=decItems(F["46A"]).map(decDoc);const has=k=>docs.some(d=>d.key===k);
+    const D46=T("46A");const air=/AIR\s*WAY\s*BILL|\bAWB\b|AIRPORT/.test(D46+T("44E")+T("44F"));
+    if(!inc&&F["45A"])add("info","No Incoterm found in 45A","Most credits state the delivery term (for example \"CIF Jebel Ali, Incoterms 2020\"). Without one, check who pays freight and insurance.","",["45A"]);
+    if(inc){
+      if(inc.term==="DAT")add("amber","DAT is an old Incoterm","DAT was replaced by DPU in Incoterms 2020. Check which rules the parties intend.","",["45A"]);
+      else if(inc.ver&&+inc.ver<2020)add("info","Older Incoterms version",`The credit refers to Incoterms ${inc.ver}. That is allowed, but make sure your contract uses the same version.`,"",["45A"]);
+      const cTerm=/^(CFR|CIF|CPT|CIP)$/.test(inc.term),fTerm=/^(EXW|FCA|FAS|FOB)$/.test(inc.term),insT=/^(CIF|CIP)$/.test(inc.term);
+      if(cTerm&&/FREIGHT\s+(COLLECT|PAYABLE AT DESTINATION|TO PAY)/.test(D46))add("red",`${inc.term} but the transport document must show "freight collect"`,`Under ${inc.term} you pay the main freight, so the transport document would normally say "freight prepaid". This conflict could lead to a discrepancy or a freight dispute. Ask for an amendment.`,"",["45A","46A"]);
+      if(fTerm&&/FREIGHT\s+PREPAID/.test(D46))add("amber",`${inc.term} but the transport document must show "freight prepaid"`,`Under ${inc.term} the buyer pays the main freight. If you are being asked to prepay it, make sure that cost is in your price.`,"",["45A","46A"]);
+      if(insT&&!has("ins"))add("amber",`${inc.term} but no insurance document is asked for`,`Under ${inc.term} you arrange the insurance. Check whether the credit should ask for an insurance document, so the buyer can't dispute it later.`,"",["45A","46A"]);
+      if(!insT&&has("ins"))add("amber",`Insurance document asked for under ${inc.term}`,`Under ${inc.term} insurance is the buyer's concern, but the credit asks you for an insurance document. Make sure the premium is in your price.`,"",["45A","46A"]);
+      if(/^(FOB|CFR|CIF|FAS)$/.test(inc.term)&&air)add("amber",`${inc.term} used for an air shipment`,`${inc.term} is meant for sea transport. For air or container shipments, FCA, CPT or CIP fit better.`,"",["45A"]);
+    }
+    if(has("ins")){const d=docs.find(x=>x.key==="ins");if(!/(\d{3})\s*(%|PCT|PERCENT)/.test(d.text.toUpperCase()))add("info","Insurance amount not stated",`The minimum is then 110% of the CIF or CIP value (${A_(28,"(f)")}).`,"",["46A"]);}
+    // documents: straight consignment, legalisation
+    docs.forEach(d=>{const U=d.text.toUpperCase();
+      if((d.key==="awb"||d.key==="road"||d.key==="swb")&&/CONSIGNED TO\s+(THE\s+)?(APPLICANT|BUYER)|CONSIGNEE[:\s]+(THE\s+)?(APPLICANT|BUYER)/.test(U)||(d.key==="awb"&&ap1.length>5&&U.replace(/[^A-Z]/g,"").includes("CONSIGNEDTO"+ap1)))
+        add("amber",`${d.name} consigned to the buyer`,"The carrier will hand the goods to the buyer without any original document. If your documents are refused, you have already lost control of the goods. Ask for the goods to be consigned to the issuing bank, with its agreement.","",["46A"]);
+      if(d.key==="bl"&&/CONSIGNED TO\s+(THE\s+)?(APPLICANT|BUYER)/.test(U)&&!/ORDER/.test(U))add("amber","Bill of lading consigned directly to the buyer","A straight bill of lading gives the bank no security over the goods. In some countries the buyer can collect the goods without it.","",["46A"]);
+      if(/LEGALI[SZ]ED|ATTESTED BY (THE\s+)?(EMBASSY|CONSULATE)|CONSULAR/.test(U))add("amber",`${d.name} must be legalised or attested`,"Embassy or consulate attestation can take days. Build this into your timeline from shipment to presentation.","",["46A"]);
+    });
+    // 47A content
+    const dTxt=all+" "+T("71D");const m47=/DISCREPANC(?:Y|IES)\s+(?:FEES?|CHARGES?)[^.]*?\b([A-Z]{3})\s*(\d[\d,]*(?:\.\d+)?)/.exec(dTxt)||/\b([A-Z]{3})\s*(\d[\d,]*(?:\.\d+)?)\b[^.]{0,60}DISCREPANC/.exec(dTxt);
+    if(m47)add("amber","Discrepancy fee",`Each discrepant presentation costs ${esc(m47[1]+" "+m47[2])}, deducted from what you are paid. One more reason to get the documents right first time.`,"",["47A"]);
+    else if(/DISCREPANC/.test(all))add("info","Discrepancy fee clause","The credit mentions a fee for discrepant documents; check the amount in 47A or 71D.","",["47A"]);
+    if(/(ALL\s+)?DOCUMENTS?\s+(MUST|SHOULD|TO)\s+(BEAR|SHOW|INDICATE|QUOTE|MENTION)\s+(THE\s+|THIS\s+)?(L\s?\/\s?C|D\s?\/\s?C|CREDIT|DC|LC)\s*(NO|NUMBER)?/.test(all))add("info","Every document must show the LC number","Easy to miss on documents others issue, like the bill of lading or certificate of origin. Tell them in advance.","",["47A"]);
+    if(/DATED\s+(PRIOR|EARLIER|BEFORE)[^.]{0,30}(ISSU|L\s?\/\s?C|CREDIT)[^.]{0,30}NOT\s+ACCEPTABLE|NOT\s+(BE\s+)?DATED\s+(PRIOR|EARLIER|BEFORE)/.test(all))add("info","Documents dated before the LC are not accepted",`Normally documents may be dated before the credit (${A_(14,"(i)")}); this credit overrides that. Check the dates of certificates you already hold.`,"",["47A"]);
+    if(/THIRD\s+PARTY\s+DOCUMENTS?\s+(ARE\s+)?NOT\s+ACCEPTABLE/.test(all))add("amber","Third-party documents not acceptable","All documents must show you (the beneficiary) as shipper or issuer. If your supplier or a trading house ships the goods, this will cause a discrepancy.","",["47A"]);
+    if(/STALE\s+DOCUMENTS?\s+(ARE\s+)?ACCEPTABLE/.test(all))add("info","Stale documents acceptable","Documents may be presented after the 21-day period, but still before expiry.","",["47A"]);
+    // non-documentary conditions
+    decItems(F["47A"]).forEach(s=>{const U=s.toUpperCase();
+      if(/\b(MUST|SHOULD|SHALL|TO BE|NOT ALLOWED|NOT PERMITTED|PROHIBITED)\b/.test(U)&&/(ORIGIN|VESSEL|SHIP\b|SHIPS\b|CARRIER|FLAG|CONTAINER|PACK|LABEL|MARKING|AGE\b|ROUTE|CALL\b|QUALITY)/.test(U)&&!/(CERTIFICATE|STATEMENT|DECLARATION|DOCUMENT|INVOICE|B\s?\/\s?L|BILL OF LADING|WAYBILL|PACKING LIST|EVIDENC|SHOWING|INDICATING|CERTIFY|ATTEST|PRESENT|DRAFT|ADVICE|CHARGES)/.test(U))
+        add("info","A condition with no document to prove it",`"${esc(s.length>160?s.slice(0,157)+"…":s)}" Banks disregard a condition like this when checking documents (${A_(14,"(h)")}), but none of your documents should contradict it.`,"",["47A"]);
+    });
+    // confirmation & charges
+    const c49=T("49");
+    if(/WITHOUT/.test(c49))add("info","Not confirmed","You rely on the issuing bank alone. If you are unsure about the bank or its country, ask your bank about adding its confirmation (or a silent confirmation).","",["49"]);
+    else if(/MAY ADD/.test(c49))add("info","Confirmation may be added",`Your bank may confirm at your request; the fee is usually yours. A confirming bank adds its own undertaking to pay (${A_(8)}).`,"",["49"]);
+    else if(/CONFIRM/.test(c49))add("info","Confirmation requested",`The confirming bank adds its own undertaking to pay (${A_(8)}). Check field 71D for who pays the confirmation fee.`,"",["49"]);
+    const ch=T("71D");
+    if(/ALL\b[^.]*CHARGES[^.]*(BENEFICIAR|EXPORTER|SELLER)/.test(ch)&&!/OUTSIDE|EXCEPT|OTHER THAN|EXCLUDING/.test(ch))add("amber","All bank charges are for your account","That includes the issuing bank's charges, which are normally the buyer's. Price this in, or ask for charges outside your country only.","",["71D"]);
+  }
+  // soft clauses (both types)
+  SOFT.forEach(([re,title,why])=>{if(re.test(all)){const s=decSnip(all,re);SUB[title]=1;add("red",title,(s?`"${esc(s)}" `:"")+why,"",[P.type==="707"?"47B":"47A"].filter(k=>F[k]).concat(F["46A"]&&re.test(T("46A"))?["46A"]:[]))}});
+  const ord={red:0,amber:1,info:2};
+  return out.sort((a,b)=>ord[a.lvl]-ord[b.lvl]);
+}
+function decMeaning(tag,v,P){
+  const F=P.F,U=String(v).toUpperCase();let d,a,m;
+  switch(tag){
+    case "27":return /1\/[2-8]/.test(U)?"This is the first of several messages: MT701 continuation(s) follow.":"The whole credit is in this one message.";
+    case "40A":return (/IRREVOCABLE/.test(U)?"Irrevocable: it cannot be amended or cancelled without your agreement.":"Form of the credit.")+(/TRANSFERABLE/.test(U)?" Transferable: it can be passed on to a second beneficiary.":"");
+    case "20":return P.type==="707"?"The number of the credit being amended.":"The LC number. Quote it on your documents if the credit asks.";
+    case "31C":return (d=decDate(v))?"Issued on "+fmtD(d.d)+".":"";
+    case "30":return (d=decDate(v))?"Amendment dated "+fmtD(d.d)+".":"";
+    case "26E":return "Amendment number "+String(+U.replace(/\D/g,"")||U)+". Amendments are numbered in order; check you have received all earlier ones.";
+    case "22A":return {ISSU:"Amendment issued by the issuing bank.",ADVI:"Advice of an amendment.",ACNF:"Advice of an amendment, with confirmation."}[U.trim()]||"Purpose of the message.";
+    case "23S":return "A request to cancel the credit. It needs your agreement.";
+    case "40E":return /EUCPURR/.test(U)?"eUCP and UCP 600, with bank reimbursement under URR 725.":/UCPURR/.test(U)?"UCP 600, with bank reimbursement under URR 725.":/EUCP/.test(U)?"eUCP 2.1 with UCP 600: electronic presentation allowed.":/UCP/.test(U)?"Subject to UCP 600, the standard rules for documentary credits.":/ISP/.test(U)?"ISP98: the rules for standby credits.":"Other rules: see the narrative.";
+    case "31D":return (d=decDate(v))?`Expires on ${fmtD(d.d)}${d.rest?" at "+esc(d.rest):""}. Documents must be presented there by this date.${dayDiff(today0(),d.d)>=0?` That is ${dayDiff(today0(),d.d)} days from today.`:" This date has passed."}`:"";
+    case "50":return "The buyer (applicant). Documents made out to the applicant should use this name.";
+    case "59":case "59A":return `You, the exporter (beneficiary). Your address on documents may differ from this, as long as it is in the same country (${A_(14,"(j)")}).`;
+    case "51A":case "51D":return "The applicant's bank, if it is different from the issuing bank.";
+    case "52A":case "52D":return "The bank that issued the credit.";
+    case "32B":if(P.type==="707")return "Amount the credit increases by: "+esc(decFmtAmt(decAmt(v)))+".";
+      a=decAmt(v);if(!a)return "";m=/(\d{1,2})\s*\/\s*(\d{1,2})/.exec(String(F["39A"]||""));
+      return "Credit amount "+esc(decFmtAmt(a))+"."+(m?` With the tolerance in 39A, you can draw between ${esc(decFmtAmt({ccy:a.ccy,v:a.v*(1-m[2]/100)}))} and ${esc(decFmtAmt({ccy:a.ccy,v:a.v*(1+m[1]/100)}))}.`:" No tolerance is stated, so you cannot draw more than this.");
+    case "33B":return "Amount the credit decreases by: "+esc(decFmtAmt(decAmt(v)))+".";
+    case "39A":m=/(\d{1,2})\s*\/\s*(\d{1,2})/.exec(U);return m?`You may draw up to ${+m[1]}% more or ${+m[2]}% less than the credit amount.`:"";
+    case "39C":return "Extra amounts the credit also covers, such as freight or interest.";
+    case "41A":case "41D":{const by=(/BY\s+([A-Z. ]+)/.exec(U)||[])[1]||"";const w=/ANY BANK/.test(U)?"Any bank can act as the nominated bank. ":/ISSUING BANK/.test(U)?"Only the issuing bank honours the credit. ":"The bank named here is the nominated bank. ";
+      return w+(/NEGOT/.test(by)?`By negotiation: the nominated bank can buy your documents and pay you before it is reimbursed (${A_(2)}).`:/DEF/.test(by)?"By deferred payment: the bank undertakes to pay on a future date; no draft is used.":/ACCEPT/.test(by)?"By acceptance: the bank accepts your draft and pays it at maturity.":/MIXED/.test(by)?"By mixed payment: see 42M.":/PAYMENT/.test(by)?"By sight payment: you are paid when complying documents are presented.":"");}
+    case "42C":return /SIGHT/.test(U)&&!/DAYS/.test(U)?"Sight draft: payable when complying documents are presented.":(m=/(\d{1,3})\s*DAYS?/.exec(U))?`Usance draft: payable ${m[1]} days after the stated event.`:"";
+    case "42A":case "42D":return "The party your draft is drawn on. It should be a bank, never the applicant.";
+    case "42M":return "How payment is split between sight, deferred payment or acceptance.";
+    case "42P":return "Dates or terms for negotiation or deferred payment.";
+    case "43P":return /NOT\s+ALLOWED|PROHIBITED/.test(U)?`All goods must be shipped at once (${A_(31)}).`:/CONDITIONAL/.test(U)?"Allowed under conditions stated in 47A.":/ALLOWED|PERMITTED/.test(U)?`You may ship in parts and present documents for each (${A_(31)}).`:"";
+    case "43T":return /NOT\s+ALLOWED|PROHIBITED/.test(U)?`The goods should not be moved from one vessel to another during carriage (but see ${A_(20,"(c)")} for containers).`:/ALLOWED|PERMITTED/.test(U)?"The goods may be moved from one vessel or vehicle to another during carriage.":"";
+    case "44A":return "Where the carrier takes the goods in charge (for multimodal or road transport).";
+    case "44E":return "The port or airport of loading. It must appear on the transport document.";
+    case "44F":return "The port or airport of discharge. It must appear on the transport document.";
+    case "44B":return "The final destination, for multimodal or road transport.";
+    case "44C":return (d=decDate(v))?`Ship no later than ${fmtD(d.d)}. This date is never extended for a holiday (${A_(29,"(c)")}).`:"";
+    case "44D":return "The period in which shipment must take place.";
+    case "45A":{const inc=decIncoterm(F);return `Your invoice must describe the goods so that it corresponds with this (${A_(18,"(c)")}).`+(inc?` Delivery term found: <b>${esc(inc.term)}${inc.place?" "+esc(inc.place):""}</b>${inc.ver?" (Incoterms "+inc.ver+")":""}.`:"");}
+    case "46A":return decItems(v).length+" document(s) required. See the checklist above.";
+    case "47A":return decItems(v).length+" condition(s). Any that need attention are listed in the watch-outs.";
+    case "45B":case "46B":case "47B":case "49M":case "49N":return "Codes: /ADD/ adds text, /DELETE/ removes it, /REPALL/ replaces the whole field.";
+    case "49G":return "Conditions for payment that apply to you. Read them carefully.";
+    case "49H":return "Conditions for the banks only. They are not passed on to you in full.";
+    case "71D":return "Who pays which bank charges. If silent, charges outside the issuing bank are usually yours.";
+    case "71N":return /BENE/.test(U)?"You pay the charges for this amendment.":/APPL/.test(U)?"The applicant pays the charges for this amendment.":"Who pays for this amendment.";
+    case "48":m=/(\d{1,3})/.exec(U);return m?`Present documents within ${m[1]} days after shipment, and before expiry.`:"";
+    case "49":return /WITHOUT/.test(U)?"No confirmation: you rely on the issuing bank.":/MAY ADD/.test(U)?"Your bank may add its confirmation if you ask.":/CONFIRM/.test(U)?"The advising bank is asked to confirm the credit.":"";
+    case "58A":case "58D":return "The bank asked to add its confirmation.";
+    case "53A":case "53D":return `The bank that will reimburse the paying or negotiating bank${/URR/.test(String(F["40E"]||"").toUpperCase())?", under URR 725":""}.`;
+    case "78":return "Instructions to the nominated bank, such as where to send documents and how it will be reimbursed.";
+    case "57A":case "57B":case "57D":return "The bank through which the credit is advised to you.";
+    case "72Z":case "72":return "Information between the banks.";
+    case "79":return "Free-text details of the amendment.";
+  }
+  return "";
+}
+function decSummary(P){
+  const F=P.F,first=k=>esc((String(F[k]||"").split("\n")[0]||"").trim())||"–";const td=today0();const rows=[];
+  const dd=(k,lbl)=>{const d=decDate(F[k]);if(!d)return;const n=dayDiff(td,d.d);rows.push([lbl,`${fmtD(d.d)}${d.rest&&k==="31D"?" · "+esc(d.rest):""}<small>${n===0?"today":n>0?"in "+n+" day"+(n>1?"s":""):(-n)+" day"+(n<-1?"s":"")+" ago"}</small>`]);};
+  if(P.type==="707"){
+    rows.push(["Credit number",first("20")]);if(F["26E"])rows.push(["Amendment number",esc(F["26E"])]);
+    if(F["30"]){const d=decDate(F["30"]);if(d)rows.push(["Amendment date",fmtD(d.d)])}
+    if(F["52A"]||F["52D"])rows.push(["Issuing bank",esc(String(F["52A"]||F["52D"]).split("\n")[0])]);
+    const ch=P.order.filter(k=>!["27","20","21","23","52A","52D","50B","31C","26E","30","22A","72Z","72"].includes(k));
+    rows.push(["Fields changed",ch.length?ch.map(k=>`<a href="#dfld-${k}" class="dec-tag" data-jump-f="${k}">${k}</a>`).join(" "):"None found"]);
+    if(F["32B"])rows.push(["Increase",esc(decFmtAmt(decAmt(F["32B"])))]);if(F["33B"])rows.push(["Decrease",esc(decFmtAmt(decAmt(F["33B"])))]);
+    dd("31D","New expiry");dd("44C","New latest shipment");
+    return rows;
+  }
+  rows.push(["LC number",first("20")]);
+  rows.push(["Form",esc(F["40A"]||"–")]);rows.push(["Rules",esc(F["40E"]||"–")]);
+  rows.push(["Applicant (buyer)",first("50")]);rows.push(["Beneficiary (you)",first(F["59"]?"59":"59A")]);
+  const a=decAmt(F["32B"]);const tm=/(\d{1,2})\s*\/\s*(\d{1,2})/.exec(String(F["39A"]||""));
+  rows.push(["Amount",a?esc(decFmtAmt(a))+(tm?`<small>+${+tm[1]}% / −${+tm[2]}% tolerance</small>`:""):"–"]);
+  const av=String(F["41A"]||F["41D"]||"").replace(/\n/g," ");rows.push(["Available",esc(av)||"–"]);
+  rows.push(["Payment",esc(F["42C"]?String(F["42C"]).replace(/\n/g," "):(/DEF/.test(av.toUpperCase())?String(F["42P"]||"Deferred payment"):"–"))]);
+  dd("31C","Issued");dd("44C","Latest shipment");if(F["44D"])rows.push(["Shipment period",esc(F["44D"])]);dd("31D","Expiry");
+  const pm=/(\d{1,3})/.exec(String(F["48"]||""));rows.push(["Presentation period",pm?pm[1]+" days after shipment":"21 days (default)"]);
+  rows.push(["Partial / transhipment",esc((F["43P"]||"–")+" / "+(F["43T"]||"–"))]);
+  const route=[F["44A"],F["44E"]].filter(Boolean).join(" · ")+" → "+[F["44F"],F["44B"]].filter(Boolean).join(" · ");
+  if(route.trim()!=="→")rows.push(["Route",esc(route.replace(/\n/g," "))]);
+  const inc=decIncoterm(F);rows.push(["Incoterm",inc?esc(inc.term+(inc.place?" "+inc.place:"")+(inc.ver?" ("+inc.ver+")":"")):"Not found"]);
+  rows.push(["Confirmation",esc(F["49"]||"–")]);rows.push(["Documents",decItems(F["46A"]).length+" required"]);
+  return rows;
+}
+let DEC_LAST=null;
+function decRender(raw){
+  const P=decParse(raw);const box=$("dec-out");
+  if(!P.order.length){box.hidden=false;box.innerHTML=`<div class="status warn">No SWIFT field tags found. Paste the full MT700 or MT707, including tags such as <code>:31D:</code> or <code>31D:</code> at the start of each field.</div>`;DEC_LAST=null;return;}
+  DEC_LAST=P;const flags=decCheck(P);const F=P.F;
+  const cnt=l=>flags.filter(f=>f.lvl===l).length;
+  const LBL={red:"Red",amber:"Amber",info:"Info"};
+  const flagHTML=flags.length?flags.map(f=>`<div class="dec-flag dec-${f.lvl}"><span class="dec-pill">${LBL[f.lvl]}</span><div><b>${esc(f.t)}</b><p>${f.d}</p>${f.f.length?`<p class="dec-fl">Field${f.f.length>1?"s":""} ${f.f.map(k=>`<a href="#dfld-${k}" class="dec-tag" data-jump-f="${k}">${k}</a>`).join(" ")}</p>`:""}</div></div>`).join(""):`<p class="muted">Nothing flagged.</p>`;
+  const docSrc=P.type==="707"?[...String(F["46B"]||"").matchAll(/\/(ADD|DELETE|REPALL)\/([\s\S]*?)(?=\/(?:ADD|DELETE|REPALL)\/|$)/g)].filter(m=>m[1]!=="DELETE").map(m=>m[2].trim()).join("\n"):F["46A"];
+  const docs=decItems(docSrc).map(decDoc);
+  const docHTML=docs.length?docs.map((d,i)=>`<div class="dec-doc"><div class="dec-doc-h"><span class="dec-num">${i+1}</span><b>${esc(d.name)}</b>${d.art?`<span class="dec-art">${A_(d.art)}</span>`:""}</div>${d.hi.length?`<div class="dec-hi">${d.hi.map(h=>`<span>${esc(h)}</span>`).join("")}</div>`:""}<p class="dec-src">${esc(d.text)}</p><ul class="dec-chk">${(DOC_CHECKS[d.key]||DOC_CHECKS.other)().map(c=>`<li>${c}</li>`).join("")}</ul></div>`).join(""):"";
+  const fmtVal=(k,v)=>/^(45B|46B|47B|49M|49N)$/.test(k)?esc(v).replace(/\/(ADD|DELETE|REPALL)\//g,(m,c)=>`<span class="dec-code dec-code-${c.toLowerCase()}">${{ADD:"Adds",DELETE:"Deletes",REPALL:"Replaces all with"}[c]}</span>`):esc(v);
+  const fieldHTML=P.order.map(k=>`<div class="dec-row" id="dfld-${k}"><div class="dec-row-h"><span class="dec-tagbig">${k}</span><b>${esc(decName(k,P.type))}</b>${MT_GUIDE.has(k)&&P.type==="700"?`<button type="button" class="dec-guide" data-guide="${k}">Guide</button>`:""}</div><pre class="dec-val">${fmtVal(k,F[k])||"<i>(empty)</i>"}</pre>${(()=>{const m=decMeaning(k,F[k],P);return m?`<p class="dec-mean">${m}</p>`:""})()}</div>`).join("");
+  const ex=decDate(F["31D"]),ls=decDate(F["44C"]);const pm=/(\d{1,3})/.exec(String(F["48"]||""));
+  const canLC=P.type==="700"&&ex;
+  box.hidden=false;
+  box.innerHTML=`
+  <div class="dec-head">
+    <div><span class="dec-type">${P.type==="707"?"MT707 · Amendment to a documentary credit":"MT700 · Issue of a documentary credit"}</span>${P.merged?`<span class="dec-type dec-type-2">MT701 continuation merged</span>`:""}</div>
+    <div class="dec-counts"><span class="dec-red">${cnt("red")} red</span><span class="dec-amber">${cnt("amber")} amber</span><span class="dec-info">${cnt("info")} info</span></div>
+  </div>
+  <div class="dec-actions no-print">
+    <button type="button" class="btn" id="dec-ai">Get an AI prompt</button>
+    ${canLC?`<button type="button" class="btn ghost" id="dec-lc">Check dates in the LC date calculator</button>`:""}
+    <button type="button" class="btn ghost" id="dec-print">Print or save as PDF</button>
+  </div>
+  <div class="dec-ai-box no-print" id="dec-ai-box" hidden>
+    <label class="dec-mask"><input type="checkbox" id="dec-mask" checked> Hide names, addresses, banks and the LC number (recommended)</label>
+    <textarea id="dec-prompt" readonly rows="10" aria-label="AI prompt"></textarea>
+    <div class="cta-row"><button type="button" class="btn" id="dec-copy">Copy prompt</button><span class="muted small" id="dec-copied" aria-live="polite"></span></div>
+    <p class="muted small">Paste it into the AI assistant you use, such as ChatGPT, Claude or Gemini. Check your employer's policy before using an AI service with client documents. AI can be wrong: check anything important against UCP 600.</p>
+  </div>
+  <div class="dec-sec"><h2>${P.type==="707"?"The amendment at a glance":"The LC at a glance"}</h2><div class="dec-sum">${decSummary(P).map(r=>`<div><span>${r[0]}</span><b>${r[1]}</b></div>`).join("")}</div></div>
+  <div class="dec-sec"><h2>Watch-outs</h2><div class="dec-flags">${flagHTML}</div></div>
+  ${docHTML?`<div class="dec-sec"><h2>${P.type==="707"?"Documents added or replaced":"Document checklist"}</h2><p class="muted">${P.type==="707"?"New or replacement document requirements from field 46B.":"From field 46A. Tick through these before you present."}</p><div class="dec-docs">${docHTML}</div></div>`:""}
+  <div class="dec-sec"><h2>Field by field</h2><div class="dec-fields">${fieldHTML}</div></div>
+  <p class="muted small dec-note">Read automatically from the text you pasted, using fixed rules. It is an aid to reading the credit, not a document examination, and it can miss unusual wording. Check anything important with your bank.</p>`;
+  if(canLC)$("dec-lc").addEventListener("click",()=>{const iso=x=>isoD(x);goRoute("tool-lc","#lc-"+(ls?iso(ls.d):"")+"_"+iso(ex.d)+"_"+(pm?pm[1]:"21"));});
+  $("dec-print").addEventListener("click",()=>{try{window.print()}catch(_){}});
+  $("dec-ai").addEventListener("click",()=>{const b=$("dec-ai-box");b.hidden=!b.hidden;if(!b.hidden)decPrompt();});
+  $("dec-mask").addEventListener("change",decPrompt);
+  $("dec-copy").addEventListener("click",()=>{const t=$("dec-prompt");const done=()=>{$("dec-copied").textContent="Copied."};
+    try{navigator.clipboard.writeText(t.value).then(done,()=>{t.select();document.execCommand("copy");done()})}catch(_){t.select();try{document.execCommand("copy")}catch(__){};done()}});
+  box._flags=flags;
+  try{box.scrollIntoView({block:"start"})}catch(_){}
+}
+function decPrompt(){
+  const P=DEC_LAST;if(!P)return;const mask=$("dec-mask").checked;const F=Object.assign({},P.F);
+  if(mask){
+    const nm=k=>(String(P.F[k]||"").split("\n")[0]||"").trim();
+    const app=nm("50"),ben=nm("59")||nm("59A"),num=nm("20");
+    const PH={"50":"[APPLICANT NAME AND ADDRESS]","59":"[BENEFICIARY NAME AND ADDRESS]","59A":"[BENEFICIARY]","20":"[LC NUMBER]","23":"[REFERENCE]","21":"[REFERENCE]"};
+    ["51A","51D","52A","52D","53A","53D","57A","57B","57D","58A","58D","42A","42D","41A"].forEach(k=>PH[k]="[BANK]");
+    Object.keys(F).forEach(k=>{if(PH[k])F[k]=PH[k];});
+    if(P.F["41D"])F["41D"]=String(P.F["41D"]).replace(/^(?!ANY BANK)(.*)$/m,(m,l)=>/^BY\s/.test(l)?l:"[BANK]");
+    if(P.F["42D"]&&/APPLICANT/i.test(P.F["42D"]))F["42D"]=P.F["42D"];
+    const rep=(s,x,ph)=>x&&x.length>3?s.split(x).join(ph):s;
+    Object.keys(F).forEach(k=>{if(!PH[k]){let s=String(F[k]);s=rep(s,app,"[APPLICANT]");s=rep(s,ben,"[BENEFICIARY]");s=rep(s,num,"[LC NUMBER]");F[k]=s;}});
+  }
+  const body=P.order.map(k=>`:${k}:${F[k]}`).join("\n");
+  const flags=($("dec-out")._flags||[]).filter(f=>f.lvl!=="info").map(f=>`- [${f.lvl.toUpperCase()}] ${f.t}`).join("\n");
+  const what=P.type==="707"?"SWIFT MT707 amendment to a documentary credit":"SWIFT MT700 documentary credit (letter of credit)";
+  $("dec-prompt").value=`You are an experienced trade finance specialist. Review the following ${what} from the point of view of the exporter (the beneficiary).${F["40E"]?` It is subject to: ${String(F["40E"]).split("\n")[0]}.`:""}
+
+Please:
+1. Summarise the key terms in plain English.
+2. Identify any soft clauses, non-documentary conditions, or terms that give the applicant control over payment.
+3. Check consistency between the Incoterm, the documents required and the shipment details.
+4. Check the dates: issue, latest shipment, presentation period and expiry.
+5. List each document required and what the exporter must check before presenting.${P.type==="707"?"\n6. Explain what this amendment changes, and whether the exporter should accept it.":"\n6. Flag anything unusual compared with standard practice under UCP 600 and ISBP 821."}
+Cite the UCP 600 article or ISBP 821 paragraph for each point, and say clearly when you are unsure.
+${flags?`\nAn automated rule-based check has already flagged:\n${flags}\nConfirm or correct these, and look for anything it missed.\n`:""}
+${P.type==="707"?"Amendment":"LC"} text:
+<<<
+${body}
+>>>`;
+}
+function goRoute(r,h){
+  const live=!!document.documentElement.dataset.page;
+  if(live){if(r===curPage()){if(h){try{history.replaceState(null,"",h)}catch(_){};applyHash(h)}}else location.href=(r==="home"?"/":"/"+r)+(h||"");return}
+  show(r);try{history.replaceState(null,"","#"+r)}catch(_){};if(h)setTimeout(()=>applyHash(h),80);
+}
+const DEC_SAMPLES={
+ sight:`:27:1/1
+:40A:IRREVOCABLE
+:20:DC-SAMPLE-1001
+:31C:{0}
+:40E:UCP LATEST VERSION
+:31D:{75}INDIA
+:50:ALPHA TRADING LLC
+P.O. BOX 1234, DUBAI, UAE
+:59:SAMPLE EXPORTS PVT LTD
+INDUSTRIAL AREA, LUDHIANA, INDIA
+:32B:USD48000,00
+:39A:05/05
+:41D:ANY BANK IN INDIA
+BY NEGOTIATION
+:42C:AT SIGHT
+:42D:GULF SAMPLE BANK PSC, DUBAI
+:43P:ALLOWED
+:43T:ALLOWED
+:44E:ANY SEAPORT IN INDIA
+:44F:JEBEL ALI PORT, UAE
+:44C:{45}
+:45A:READYMADE COTTON T-SHIRTS, 100 PCT COTTON, ASSORTED SIZES,
+12,000 PCS AT USD 4.00 PER PC
+CIF JEBEL ALI, UAE INCOTERMS 2020
+:46A:+SIGNED COMMERCIAL INVOICE IN 3 ORIGINALS SHOWING THE CREDIT NUMBER.
++FULL SET OF CLEAN ON BOARD OCEAN BILLS OF LADING MADE OUT TO THE ORDER OF GULF SAMPLE BANK PSC, MARKED FREIGHT PREPAID AND NOTIFY APPLICANT.
++INSURANCE CERTIFICATE IN DUPLICATE, BLANK ENDORSED, FOR 110 PCT OF CIF VALUE, COVERING INSTITUTE CARGO CLAUSES (A).
++PACKING LIST IN 3 COPIES.
++CERTIFICATE OF ORIGIN ISSUED BY A CHAMBER OF COMMERCE IN INDIA.
+:47A:+ALL DOCUMENTS MUST SHOW THIS CREDIT NUMBER.
++THIRD PARTY DOCUMENTS EXCEPT DRAFT AND INVOICE ARE ACCEPTABLE.
++A DISCREPANCY FEE OF USD 75.00 WILL BE DEDUCTED FROM THE PROCEEDS OF EACH DISCREPANT PRESENTATION.
+:71D:ALL BANKING CHARGES OUTSIDE UAE ARE FOR BENEFICIARY'S ACCOUNT.
+:48:21/FROM THE DATE OF SHIPMENT
+:49:WITHOUT
+:78:ON RECEIPT OF COMPLYING DOCUMENTS AT OUR COUNTERS WE SHALL REMIT THE PROCEEDS AS PER YOUR INSTRUCTIONS.`,
+ usance:`:27:1/1
+:40A:IRREVOCABLE
+:20:DC-SAMPLE-2002
+:31C:{0}
+:40E:UCP LATEST VERSION
+:31D:{60}QATAR
+:50:BETA FOODS TRADING CO
+DOHA, QATAR
+:59:SAMPLE AGRO OVERSEAS
+G.T. ROAD, PANIPAT, INDIA
+:32B:USD220000,00
+:41D:ANY BANK
+BY NEGOTIATION
+:42C:AT 90 DAYS FROM BILL OF LADING DATE
+:42D:QATAR SAMPLE BANK QPSC
+:43P:ALLOWED
+:43T:NOT ALLOWED
+:44E:NHAVA SHEVA, INDIA
+:44F:HAMAD PORT, QATAR
+:44C:{40}
+:45A:ABOUT 200 METRIC TONNES INDIAN BASMATI RICE, CROP 2026, IN 25 KG BAGS,
+AT USD 1,100 PER MT, FOB NHAVA SHEVA INCOTERMS 2020
+:46A:1. SIGNED COMMERCIAL INVOICE IN TRIPLICATE.
+2. FULL SET OF CLEAN SHIPPED ON BOARD BILLS OF LADING MADE OUT TO THE ORDER OF QATAR SAMPLE BANK QPSC, MARKED FREIGHT COLLECT AND NOTIFY APPLICANT.
+3. PHYTOSANITARY CERTIFICATE ISSUED BY THE COMPETENT AUTHORITY IN INDIA.
+4. FUMIGATION CERTIFICATE.
+5. CERTIFICATE OF ORIGIN LEGALISED BY THE EMBASSY OF QATAR IN NEW DELHI.
+6. PACKING LIST AND WEIGHT LIST IN 3 COPIES EACH.
+:47A:1. USANCE INTEREST AND DISCOUNT CHARGES ARE FOR THE APPLICANT'S ACCOUNT.
+2. ALL DOCUMENTS MUST BEAR THE LC NUMBER.
+3. INSURANCE IS COVERED BY THE APPLICANT.
+:71D:ALL CHARGES OUTSIDE QATAR ARE FOR BENEFICIARY'S ACCOUNT.
+:49:MAY ADD`,
+ risky:`:27:1/1
+:40A:IRREVOCABLE
+:20:DC-SAMPLE-3003
+:31C:{0}
+:40E:UCP LATEST VERSION
+:31D:{37}AT THE COUNTERS OF THE ISSUING BANK
+:50:OMEGA IMPEX FZE
+SAIF ZONE, SHARJAH, UAE
+:59:SAMPLE SPICES EXPORTS
+MARKET YARD, PUNE, INDIA
+:32B:USD95000,00
+:41D:ISSUING BANK
+BY PAYMENT
+:42C:AT SIGHT
+:42D:OMEGA IMPEX FZE
+:43P:NOT ALLOWED
+:43T:ALLOWED
+:44E:MUNDRA, INDIA
+:44F:SHARJAH, UAE
+:44C:{30}
+:45A:INDIAN RED CHILLI WHOLE, 50 MT AT USD 1,900 PER MT
+CFR SHARJAH
+:46A:+SIGNED COMMERCIAL INVOICE IN 4 ORIGINALS.
++2/3 SET OF CLEAN ON BOARD BILLS OF LADING MADE OUT TO ORDER, BLANK ENDORSED, MARKED FREIGHT COLLECT.
++INSURANCE POLICY FOR 110 PCT OF INVOICE VALUE.
++INSPECTION CERTIFICATE SIGNED BY THE APPLICANT'S REPRESENTATIVE CERTIFYING QUALITY.
++PACKING LIST.
+:47A:+1/3 ORIGINAL BILL OF LADING TO BE SENT DIRECTLY TO THE APPLICANT BY COURIER.
++NAME OF VESSEL AND SHIPPING LINE WILL BE ADVISED BY AN AMENDMENT.
++SHIPMENT IN TWO LOTS.
++GOODS MUST BE OF INDIAN ORIGIN.
++DISCREPANCY FEE USD 150.00 PER SET.
+:71D:ALL BANKING CHARGES ARE FOR BENEFICIARY'S ACCOUNT.
+:48:7 DAYS
+:49:WITHOUT`,
+ amend:`:27:1/1
+:20:DC-SAMPLE-1001
+:21:NONREF
+:23:DC-SAMPLE-1001
+:52D:GULF SAMPLE BANK PSC, DUBAI
+:31C:{-20}
+:26E:01
+:30:{0}
+:22A:ISSU
+:32B:USD6000,00
+:31D:{95}INDIA
+:44C:{60}
+:45B:/REPALL/READYMADE COTTON T-SHIRTS, 100 PCT COTTON, ASSORTED SIZES,
+13,500 PCS AT USD 4.00 PER PC
+CIF JEBEL ALI, UAE INCOTERMS 2020
+:46B:/ADD/+INSPECTION CERTIFICATE ISSUED BY ANY INTERNATIONAL INSPECTION AGENCY CERTIFYING QUALITY AND QUANTITY.
+:47B:/DELETE/+THIRD PARTY DOCUMENTS EXCEPT DRAFT AND INVOICE ARE ACCEPTABLE.
+/ADD/+THIS AMENDMENT IS DEEMED ACCEPTED UNLESS REJECTED BY THE BENEFICIARY WITHIN 5 DAYS.
+:71N:BENE`
+};
+function decSample(k){
+  const td=today0();
+  return DEC_SAMPLES[k].replace(/\{(-?\d+)\}/g,(m,n)=>{const d=addDays(td,+n);return String(d.getFullYear()).slice(2)+String(d.getMonth()+1).padStart(2,"0")+String(d.getDate()).padStart(2,"0")});
+}
+(function(){
+  const ta=$("dec-in");if(!(ta instanceof HTMLTextAreaElement)||!$("dec-go").addEventListener)return;
+  $("dec-go").addEventListener("click",()=>decRender(ta.value));
+  $("dec-clear").addEventListener("click",()=>{ta.value="";const o=$("dec-out");o.hidden=true;o.innerHTML="";ta.focus();});
+  $("dec-samples").addEventListener("click",e=>{const b=e.target.closest("[data-sample]");if(!b)return;ta.value=decSample(b.dataset.sample);decRender(ta.value);});
+  $("dec-out").addEventListener("click",e=>{
+    const j=e.target.closest("[data-jump-f]");if(j){e.preventDefault();const r=$("dfld-"+j.dataset.jumpF);if(r.scrollIntoView){try{r.scrollIntoView({block:"center"})}catch(_){};flash(r);}return;}
+    const g=e.target.closest("[data-guide]");if(g){goRoute("ucp-600","#find-"+g.dataset.guide);}
+  });
+})();
+
 /* ---------- start ---------- */
 const start=document.documentElement.dataset.page||"home";
 show(start);
-if(/^#(art|find)-/.test(location.hash))setTimeout(()=>applyHash(location.hash),60);
+if(/^#(art|find|lc)-/.test(location.hash))setTimeout(()=>applyHash(location.hash),60);
 })();
