@@ -20,7 +20,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap">
-<link rel="stylesheet" href="/site.css?v=31cc306c">
+<link rel="stylesheet" href="/site.css?v=ad9c57f5">
 </head>
 <body>
 <div id="top-anchor" aria-hidden="true"></div>
@@ -54,12 +54,13 @@
     <p class="lede">The due date of a usance draft, adjusted for bank holidays at the place of payment.</p>
   </div>
   <div class="panel">
+<p class="ex-note" id="us-exnote">Example date, worked out from today. Replace it with your bill's date. <button type="button" class="linkbtn" id="us-exnote-clear">Clear date</button></p>
 <div class="calc">
       <div class="inputs">
         <div class="row2">
           <div class="field"><label for="us-base">Tenor counted from</label>
             <select id="us-base"><option>Bill of lading date</option><option>Shipment date</option><option>Invoice date</option><option>Date of acceptance (after sight)</option></select></div>
-          <div class="field"><label for="us-date">That date</label><input id="us-date" type="date" value="2026-10-20"></div>
+          <div class="field"><label for="us-date">That date</label><input id="us-date" type="date"></div>
         </div>
         <div class="field"><label for="us-days">Tenor (days)</label><input id="us-days" type="number" value="90" min="1" max="720"></div>
         <div class="presets" id="us-presets"><button class="chip" data-days="30" aria-pressed="false">30</button><button class="chip" data-days="60" aria-pressed="false">60</button><button class="chip" data-days="90" aria-pressed="true">90</button><button class="chip" data-days="120" aria-pressed="false">120</button><button class="chip" data-days="180" aria-pressed="false">180</button></div>
@@ -70,9 +71,9 @@
       </div>
       <div class="results">
         <span class="muted">Payment due on</span>
-        <div class="big" id="us-out">Mon, 18 Jan, 2027</div>
-        <div class="kv"><span>Calendar maturity date</span><span id="us-mat">Mon, 18 Jan, 2027</span></div>
-        <div class="kv"><span>Counted from</span><span id="us-from">Bill of lading date, Tue, 20 Oct, 2026</span></div>
+        <div class="big" id="us-out">Fri, 29 Jan, 2027</div>
+        <div class="kv"><span>Calendar maturity date</span><span id="us-mat">Fri, 29 Jan, 2027</span></div>
+        <div class="kv"><span>Counted from</span><span id="us-from">Bill of lading date, Sat, 31 Oct, 2026</span></div>
         <div class="kv"><span>Tenor</span><span id="us-ten">90 days</span></div>
         <div id="us-status"><div class="status ok">Maturity falls on a banking day.</div></div>
       </div>
@@ -85,7 +86,7 @@
   <div class="wrap foot-grid">
     <div class="foot-brand">
       <a class="brand" href="/" data-route="home"><span class="mono-mark">MC</span>Mukul Chopra</a>
-      <p>Banker · Finance professional · Trade finance enthusiast</p>
+      <p>Trade Finance, explained for real-world banking.</p>
       <div class="foot-social">
         <a href="https://www.linkedin.com/in/mukul-chopra-322913187" target="_blank" rel="noopener" aria-label="LinkedIn"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M4.98 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5zM3 9.5h4V21H3zM9.5 9.5h3.8v1.6h.1c.5-1 1.8-2 3.8-2 4 0 4.8 2.6 4.8 6V21h-4v-5.2c0-1.2 0-2.9-1.8-2.9s-2 1.4-2 2.8V21h-4z"/></svg></a>
         <a href="https://www.instagram.com/mukul.chopra1/" target="_blank" rel="noopener" aria-label="Instagram"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor"/></svg></a>
@@ -98,6 +99,7 @@
       <a href="/tools" data-route="tools">Tools</a>
       <a href="/blog" data-route="blog">Blog</a>
       <a href="/about" data-route="about">About</a>
+      <a href="/privacy" data-route="privacy">Privacy</a>
       <a href="/contact" data-route="contact">Contact</a>
     </nav>
     <nav class="foot-col" aria-label="Trade finance">
@@ -116,9 +118,9 @@
       <a href="/tool-usance" data-route="tool-usance">Usance bill maturity</a>
     </nav>
   </div>
-  <div class="wrap foot-base"><span>© 2026 Mukul Chopra · Delhi, India</span><span>Last updated October 2026</span></div>
+  <div class="wrap foot-base"><span>© 2026 Mukul Chopra · Delhi, India</span><span>Last updated November 2026</span></div>
 </footer>
-<script src="/site.js?v=3a515a8f"></script>
+<script src="/site.js?v=fb5a041e"></script>
 <!-- Cloudflare Web Analytics --><script type="module" src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "cf673dbc0c564fceabfb21390d55bdac"}'></script><!-- End Cloudflare Web Analytics -->
 </body>
 </html>

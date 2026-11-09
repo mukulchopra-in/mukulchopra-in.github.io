@@ -539,7 +539,7 @@ document.querySelectorAll("[data-tabs]").forEach(bar=>{
 
 /* ---------- routing ---------- */
 const TOOL_SUB=["lc-decoder","tool-emi", "tool-elig", "tool-prepay", "tool-lc", "tool-usance", "tool-sip", "tool-fd", "tool-cmp"];
-const PAGES=["home","trade-finance","ucp-600","isbp-821","urdg-758","urc-522","urr-725","incoterms","isp98","eucp","case-studies","glossary","tools",...TOOL_SUB,"blog","about","blog-lc-discrepancies","blog-export-payment-methods","blog-prepay-or-invest","contact"];
+const PAGES=["home","trade-finance","ucp-600","isbp-821","urdg-758","urc-522","urr-725","incoterms","isp98","eucp","case-studies","glossary","tools",...TOOL_SUB,"blog","about","privacy","blog-lc-discrepancies","blog-export-payment-methods","blog-prepay-or-invest","contact"];
 const BLOG_SUB=["blog-lc-discrepancies", "blog-export-payment-methods", "blog-prepay-or-invest"];
 const TF_SUB=["ucp-600","isbp-821","urdg-758","urc-522","urr-725","incoterms","isp98","eucp","case-studies","glossary"];
 function toTop(page){
@@ -583,6 +583,7 @@ const PAGE_META={
  "blog-export-payment-methods":["LC, documentary collection or advance payment: which one fits your export deal?","Advance payment, letter of credit, D/P and D/A collections and open account compared for exporters: risk, cost, and when each one fits."],
  "blog-prepay-or-invest":["Prepay the home loan or invest the money? A simple way to compare","Should you prepay your home loan or invest the surplus? A simple comparison using your loan rate, tax and expected returns, with a worked example."],
  "about":["About Mukul Chopra","Banker with 11+ years across trade finance, retail credit and branch operations. CAIIB, with IIBF certificates in International Trade Finance and Foreign Exchange Operations."],
+ "privacy":["Privacy notice","What mukulchopra.in collects and why: no cookies, anonymous visit counts, and an LC decoder and calculators that run entirely in your browser."],
  "contact":["Contact","Get in touch with Mukul Chopra."]
 };
 function setMeta(page){
@@ -810,6 +811,7 @@ function applyHash(h){
   if((m=/^art-(\d{1,2})$/.exec(h))){
     if(page==="ucp-600")openArticle(m[1]);else if(page==="urc-522")openRuleArt("urc",m[1]);else if(page==="urdg-758")openRuleArt("urdg",m[1]);
   }else if(h.startsWith("find-"))findOnPage(page,h.slice(5));
+  else if((m=/^tab-([a-z0-9]+)-([a-z0-9]+)$/.exec(h))){const b=document.querySelector(`[data-tabs="${m[1]}"] [data-tab="${m[2]}"]`);if(b){b.click();const bar=b.closest("[data-tabs]");setTimeout(()=>{try{bar.scrollIntoView({block:"start"})}catch(_){}},80);}}
   else if(h.startsWith("lc~")&&page==="tool-lc"){
     const P={},D=/^\d{4}-\d{2}-\d{2}$/;h.slice(3).split("~").forEach(kv=>{const i=kv.indexOf("=");if(i>0)P[kv.slice(0,i)]=kv.slice(i+1)});
     if(!D.test(P.exp||""))return;
@@ -817,7 +819,7 @@ function applyHash(h){
     const expiryOnly=P.basis==="default"&&(P.doc==="copies_only"||P.doc==="no_qualifying_transport");
     let per=Math.max(1,Math.round(+P.per)||21);if(expiryOnly)per=Math.max(1,dayDiff(parseD(ship),parseD(P.exp))+1);
     $("lc-lsd").value=lsd;$("lc-ship").value=ship;$("lc-exp").value=P.exp;$("lc-per").value=per;$("lc-pres").value="";
-    calcLC();
+    calcLC();const x1=$("lc-exnote");if(x1.style)x1.hidden=true;
     const n=P.per,msg={
       default:{qualifying_original_transport:`Field 48 is silent and the credit asks for an original transport document, so the 21-day default applies (${A_(14,"(c)")}), never later than expiry.`,
         unclear:`Field 48 is silent and the decoder couldn't tell from 46A whether an original transport document is required. The result assumes the 21-day default (${A_(14,"(c)")}). If no original transport document is presented, the expiry date is the only deadline.`,
@@ -832,7 +834,7 @@ function applyHash(h){
   }
   else if((m=/^lc-(\d{4}-\d{2}-\d{2})?_(\d{4}-\d{2}-\d{2})_(\d{1,3})$/.exec(h))&&page==="tool-lc"){
     $("lc-lsd").value=m[1]||"";$("lc-ship").value=m[1]||isoD(new Date());$("lc-exp").value=m[2];$("lc-per").value=m[3];$("lc-pres").value="";
-    const c0=$("lc-ctx");if(c0.style)c0.hidden=true;
+    const c0=$("lc-ctx");if(c0.style)c0.hidden=true;const x0=$("lc-exnote");if(x0.style)x0.hidden=true;
     calcLC();const r=$("lc-last");if(r.scrollIntoView)setTimeout(()=>{try{r.closest(".panel").scrollIntoView({block:"start"})}catch(_){};flash(r.closest(".panel"))},120);
   }
 }
@@ -1600,8 +1602,18 @@ function decSample(k){
   });
 })();
 
+document.addEventListener("click",e=>{const a=e.target.closest("[data-go-route]");if(!a)return;e.preventDefault();goRoute(a.dataset.goRoute,a.dataset.goHash||"");},true);
+/* ---------- example dates, relative to today ---------- */
+(function(){
+  const t=new Date(),t0=new Date(t.getFullYear(),t.getMonth(),t.getDate()),d=n=>isoD(addDays(t0,n));
+  if($("lc-ship").type==="date"){$("lc-lsd").value=d(0);$("lc-ship").value=d(-5);$("lc-exp").value=d(30);$("lc-pres").value=d(10);calcLC();}
+  if($("us-date").type==="date"){$("us-date").value=d(-10);calcUsance();}
+  const clr=(ids,fn,note)=>{const b=$(note+"-clear");if(b.tagName==="BUTTON")b.addEventListener("click",()=>{ids.forEach(i=>$(i).value="");$(note).hidden=true;fn();try{$(ids[0]).focus()}catch(_){}});};
+  clr(["lc-lsd","lc-ship","lc-exp","lc-pres"],calcLC,"lc-exnote");
+  clr(["us-date"],calcUsance,"us-exnote");
+})();
 /* ---------- start ---------- */
 const start=document.documentElement.dataset.page||"home";
 show(start);
-if(/^#(art|find|lc)[-~]/.test(location.hash))setTimeout(()=>applyHash(location.hash),60);
+if(/^#(art|find|lc|tab)[-~]/.test(location.hash))setTimeout(()=>applyHash(location.hash),60);
 })();
