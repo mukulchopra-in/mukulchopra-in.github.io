@@ -539,7 +539,7 @@ document.querySelectorAll("[data-tabs]").forEach(bar=>{
 
 /* ---------- routing ---------- */
 const TOOL_SUB=["lc-decoder","tool-emi", "tool-elig", "tool-prepay", "tool-lc", "tool-usance", "tool-sip", "tool-fd", "tool-cmp"];
-const PAGES=["home","trade-finance","ucp-600","isbp-821","urdg-758","urc-522","urr-725","incoterms","isp98","eucp","case-studies","glossary","tools",...TOOL_SUB,"blog","blog-lc-discrepancies","blog-export-payment-methods","blog-prepay-or-invest","contact"];
+const PAGES=["home","trade-finance","ucp-600","isbp-821","urdg-758","urc-522","urr-725","incoterms","isp98","eucp","case-studies","glossary","tools",...TOOL_SUB,"blog","about","blog-lc-discrepancies","blog-export-payment-methods","blog-prepay-or-invest","contact"];
 const BLOG_SUB=["blog-lc-discrepancies", "blog-export-payment-methods", "blog-prepay-or-invest"];
 const TF_SUB=["ucp-600","isbp-821","urdg-758","urc-522","urr-725","incoterms","isp98","eucp","case-studies","glossary"];
 function toTop(page){
@@ -556,7 +556,7 @@ function toTop(page){
   go();setTimeout(go,50);
 }
 const PAGE_META={
- "home":["Mukul Chopra","Banker, finance professional and trade finance enthusiast. Plain-English trade finance guides and free finance calculators."],
+ "home":["Mukul Chopra","Trade finance explained for real-world banking: practical guides to UCP 600, documentary credits, guarantees and export-import transactions, with case studies and free tools."],
  "trade-finance":["Trade Finance","Plain-English guides to UCP 600, ISBP 821, URDG 758, URC 522, URR 725, ISP98, eUCP and Incoterms 2020."],
  "ucp-600":["UCP 600 in plain English","All 39 articles of UCP 600 summarised, with key numbers, an MT700 field guide, document checklists and common discrepancies."],
  "isbp-821":["ISBP 821","How banks examine documents under UCP 600: practice points from ISBP 821."],
@@ -582,11 +582,12 @@ const PAGE_META={
  "blog-lc-discrepancies":["The 5 discrepancies I see most often, and how exporters can avoid them","The five most common LC discrepancies, why they happen and how exporters can avoid them, with the UCP 600 rule behind each one."],
  "blog-export-payment-methods":["LC, documentary collection or advance payment: which one fits your export deal?","Advance payment, letter of credit, D/P and D/A collections and open account compared for exporters: risk, cost, and when each one fits."],
  "blog-prepay-or-invest":["Prepay the home loan or invest the money? A simple way to compare","Should you prepay your home loan or invest the surplus? A simple comparison using your loan rate, tax and expected returns, with a worked example."],
+ "about":["About Mukul Chopra","Banker with 11+ years across trade finance, retail credit and branch operations. CAIIB, with IIBF certificates in International Trade Finance and Foreign Exchange Operations."],
  "contact":["Contact","Get in touch with Mukul Chopra."]
 };
 function setMeta(page){
   const m=PAGE_META[page]||PAGE_META.home;
-  try{document.title=page==="home"?"Mukul Chopra · Banker, finance professional":m[0]+" · Mukul Chopra";
+  try{document.title=page==="home"?"Trade Finance, explained for real-world banking · Mukul Chopra":m[0]+" · Mukul Chopra";
     const d=document.querySelector('meta[name="description"]');if(d)d.setAttribute("content",m[1]);}catch(_){}
 }
 function show(route,opts){
@@ -809,8 +810,29 @@ function applyHash(h){
   if((m=/^art-(\d{1,2})$/.exec(h))){
     if(page==="ucp-600")openArticle(m[1]);else if(page==="urc-522")openRuleArt("urc",m[1]);else if(page==="urdg-758")openRuleArt("urdg",m[1]);
   }else if(h.startsWith("find-"))findOnPage(page,h.slice(5));
+  else if(h.startsWith("lc~")&&page==="tool-lc"){
+    const P={},D=/^\d{4}-\d{2}-\d{2}$/;h.slice(3).split("~").forEach(kv=>{const i=kv.indexOf("=");if(i>0)P[kv.slice(0,i)]=kv.slice(i+1)});
+    if(!D.test(P.exp||""))return;
+    const lsd=D.test(P.lsd||"")?P.lsd:"",ship=lsd||isoD(new Date());
+    const expiryOnly=P.basis==="default"&&(P.doc==="copies_only"||P.doc==="no_qualifying_transport");
+    let per=Math.max(1,Math.round(+P.per)||21);if(expiryOnly)per=Math.max(1,dayDiff(parseD(ship),parseD(P.exp))+1);
+    $("lc-lsd").value=lsd;$("lc-ship").value=ship;$("lc-exp").value=P.exp;$("lc-per").value=per;$("lc-pres").value="";
+    calcLC();
+    const n=P.per,msg={
+      default:{qualifying_original_transport:`Field 48 is silent and the credit asks for an original transport document, so the 21-day default applies (${A_(14,"(c)")}), never later than expiry.`,
+        unclear:`Field 48 is silent and the decoder couldn't tell from 46A whether an original transport document is required. The result assumes the 21-day default (${A_(14,"(c)")}). If no original transport document is presented, the expiry date is the only deadline.`,
+        copies_only:`Field 48 is silent and the credit asks only for copies of the transport document, so the 21-day default in ${A_(14,"(c)")} doesn't apply: the expiry date is your deadline. The period box is set past expiry so the calculator uses the expiry date.`,
+        no_qualifying_transport:`Field 48 is silent and the credit doesn't ask for a transport document covered by Articles 19–25, so the 21-day default in ${A_(14,"(c)")} doesn't apply: the expiry date is your deadline. The period box is set past expiry so the calculator uses the expiry date.`},
+      stated_shipment:`Field 48 states ${esc(n)} days after shipment, never later than expiry.`,
+      stated_other:`Field 48 counts ${esc(n)} days from a date other than shipment. Enter that date in the Shipment date box to get the right deadline.`,
+      stated_unclear:"The decoder couldn't tell which date field 48 counts from. Check the wording, then enter that date in the Shipment date box."}[P.basis];
+    const txt=typeof msg==="object"&&msg?msg[P.doc]:msg;const c=$("lc-ctx");
+    if(txt&&c.style){c.innerHTML=`<b>From the LC decoder.</b> ${txt}${lsd?" The shipment date is set to the latest shipment date; change it to your actual shipment date.":""}`;c.hidden=false;}
+    const r=$("lc-last");if(r.scrollIntoView)setTimeout(()=>{try{r.closest(".panel").scrollIntoView({block:"start"})}catch(_){};flash(r.closest(".panel"))},120);
+  }
   else if((m=/^lc-(\d{4}-\d{2}-\d{2})?_(\d{4}-\d{2}-\d{2})_(\d{1,3})$/.exec(h))&&page==="tool-lc"){
     $("lc-lsd").value=m[1]||"";$("lc-ship").value=m[1]||isoD(new Date());$("lc-exp").value=m[2];$("lc-per").value=m[3];$("lc-pres").value="";
+    const c0=$("lc-ctx");if(c0.style)c0.hidden=true;
     calcLC();const r=$("lc-last");if(r.scrollIntoView)setTimeout(()=>{try{r.closest(".panel").scrollIntoView({block:"start"})}catch(_){};flash(r.closest(".panel"))},120);
   }
 }
@@ -893,6 +915,8 @@ document.addEventListener("keydown",e=>{
   if((e.key==="/"&&!typing&&!e.ctrlKey&&!e.metaKey&&!e.altKey)||((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==="k")){e.preventDefault();srchOpen();}
 });
 
+document.querySelectorAll("[data-open-search]").forEach(b=>b.addEventListener("click",srchOpen));
+document.addEventListener("click",e=>{const c=e.target.closest(".artlink-chip");if(c){e.preventDefault();openArticle(c.dataset.art);}});
 /* ---------- LC decoder (MT700 / MT701 / MT707) ---------- */
 const DEC_NAMES={
  "27":"Sequence of total","40A":"Form of documentary credit","20":"Documentary credit number","21":"Receiver's reference","23":"Reference / issuing bank's reference",
@@ -986,12 +1010,13 @@ function decParse(raw){
 const decGet=(F,...tags)=>{for(const t of tags)if(F[t]!=null&&F[t]!=="")return F[t];return ""};
 function decItems(text){
   if(!text)return [];
-  const out=[];let cur="";
-  String(text).split("\n").forEach(l=>{
+  const out=[];let cur="",marks=0;const lines=String(text).split("\n");
+  lines.forEach(l=>{
     const m=/^\s*(?:\+|\d{1,2}\s*[.)]|\(\d{1,2}\)|[A-Z]\)|-\s)\s*(.*)$/.exec(l);
-    if(m){if(cur.trim())out.push(cur.trim());cur=m[1]}else cur+=(cur?" ":"")+l.trim();
+    if(m){marks++;if(cur.trim())out.push(cur.trim());cur=m[1]}else cur+=(cur?" ":"")+l.trim();
   });
   if(cur.trim())out.push(cur.trim());
+  if(!marks)return lines.map(l=>l.trim()).filter(Boolean);
   return out.length?out:[String(text).trim()];
 }
 function decIncoterm(F){
@@ -1010,7 +1035,9 @@ const DOC_TYPES=[
  ["swb",/SEA\s*WAYBILL|NON.?NEGOTIABLE SEA/,"Sea waybill","21"],
  ["bl",/BILLS? OF LADING|\bB\s?\/\s?L\b/,"Bill of lading","20"],
  ["awb",/AIR\s*WAY\s*BILL|\bAWB\b|AIR CONSIGNMENT/,"Air waybill","23"],
- ["road",/\bROAD\b|\bRAIL\b|\bCMR\b|LORRY|TRUCK|RAILWAY RECEIPT/,"Road or rail transport document","24"],
+ ["road",/\bROAD\b|\bRAIL\b|\bCMR\b|LORRY|TRUCK|RAILWAY RECEIPT|INLAND WATERWAY/,"Road, rail or inland waterway document","24"],
+ ["fwd",/FORWARDER'?S?\s+(CARGO\s+|CERTIFICATE\s+OF\s+)?RECEIPT|FORWARDER'?S?\s+CERTIFICATE|\bFCR\b|CERTIFICATE OF RECEIPT|MATE'?S?\s+RECEIPT|DELIVERY ORDER|SHIPPING CERTIFICATE|CARGO RECEIPT/,"Forwarder's receipt or other cargo document",""],
+ ["td",/TRANSPORT DOCUMENT/,"Transport document","19–25"],
  ["ins",/INSURANCE/,"Insurance document","28"],
  ["pl",/PACKING LIST/,"Packing list",""],
  ["coo",/CERTIFICATE OF ORIGIN|ORIGIN CERTIFICATE|\bGSP\b|FORM A\b/,"Certificate of origin",""],
@@ -1020,7 +1047,7 @@ const DOC_TYPES=[
  ["wt",/WEIGHT/,"Weight list or certificate",""],
  ["benc",/BENEFICIARY'?S?\s*(CERTIFICATE|STATEMENT|DECLARATION)|WE (HEREBY )?CERTIFY|CERTIFYING THAT/,"Beneficiary's certificate",""],
  ["adv",/SHIPMENT ADVICE|SHIPPING ADVICE|ADVICE OF SHIPMENT/,"Shipment advice",""],
- ["courier",/COURIER|POST RECEIPT|POSTING/,"Courier or post receipt","25"],
+ ["courier",/COURIER|POST(AL)? RECEIPT|CERTIFICATE OF POSTING|POSTING/,"Courier or post receipt","25"],
  ["draft",/\bDRAFTS?\b|BILL OF EXCHANGE/,"Draft",""]
 ];
 const A_=(n,s)=>"Art. "+artBtn(n)+(s||"");
@@ -1031,6 +1058,9 @@ const DOC_CHECKS={
  mm:()=>[`Shows dispatch, taking in charge or shipment at the place in 44A or 44E, and the date (${A_(19)})`,"Final destination as in 44B or 44F","Consignee, notify party and freight marking as required; full set of originals"],
  swb:()=>[`Same checks as a bill of lading (${A_(21)})`,"Not a document of title: the consignee named can collect the goods"],
  awb:()=>[`Shows the goods accepted for carriage; the issue date is the shipment date unless the credit asks for a flight date (${A_(23)})`,"Airports as in 44E and 44F","The original for consignor or shipper",`Not a document of title: the named consignee can collect the goods`],
+ td:()=>[`Must meet the article for its type, such as ${A_(20)} for a bill of lading or ${A_(23)} for an air waybill`,"Shows the shipment, dispatch or taking-in-charge date and the places in 44A–44F","Consignee and freight marking as the credit says"],
+ fwd:()=>[`Not a transport document under Articles 19–25, so banks check it like any other document (${A_(14,"(f)")})`,"Issued by the party the credit names, with the data it asks for",`Data does not conflict with the other documents (${A_(14,"(d)")})`],
+ courierdocs:()=>["Shows the documents were sent to the party the credit names","Dated within any time the credit allows, for example within a few days of shipment","Shows the courier's name and the date of dispatch"],
  road:()=>[`Shows the place of dispatch and destination, and is signed or stamped by the carrier (${A_(24)})`,"Consignee as required"],
  ins:()=>[`Dated no later than shipment, unless it shows cover from the shipment date (${A_(28,"(e)")})`,`At least 110% of the CIF or CIP value if the credit is silent, and in the credit currency (${A_(28,"(f)")})`,`Covers the risks the credit names (${A_(28,"(g)")})`,`A policy or certificate, not a cover note (${A_(28,"(c)")}); all originals presented`],
  coo:()=>["Issued by the body the credit names, such as a chamber of commerce or export promotion council","Goods, origin and consignee details don't conflict with other documents","Allow extra time if it must be legalised or attested"],
@@ -1045,7 +1075,8 @@ const DOC_CHECKS={
 function decDoc(item){
   const U=item.toUpperCase();
   let best=null;DOC_TYPES.forEach(d=>{const m=d[1].exec(U);if(m&&(!best||m.index<best.i))best={d,i:m.index};});
-  const ty=best?best.d:["other",null,"Other document",""];
+  let ty=best?best.d:["other",null,"Other document",""];
+  if(ty[0]==="courier"){const k=decCourierKind(U);if(k==="docs")ty=["courierdocs",null,"Courier receipt for documents",""];else if(k==="unclear")ty=["courier",null,"Courier or post receipt (goods or documents?)","25"];}
   const hi=[];let m;
   const NUM={ONE:1,TWO:2,THREE:3,FOUR:4,FIVE:5,SIX:6};
   if(/FULL SET/.test(U))hi.push("Full set of originals");
@@ -1068,6 +1099,51 @@ function decDoc(item){
   if((m=/ISSUED BY ([A-Z][A-Z0-9' .&()-]{3,60}?)(?=,|\.|;| CERTIFY| SHOWING| STATING| AND |$)/.exec(U)))hi.push("Issued by "+m[1].trim());
   if(/LEGALI[SZ]ED|ATTESTED|CONSULAR|EMBASSY|CONSULATE/.test(U))hi.push("Legalised / attested");
   return {key:ty[0],name:ty[2],art:ty[3],text:item,hi:[...new Set(hi)]};
+}
+function decCourierKind(U){
+  const goods=/\bGOODS\b|SAMPLES?|CONSIGNMENT|CARGO|MERCHANDISE|SHIPMENT OF THE|PARCEL CONTAINING/.test(U);
+  const docs=/DOCUMENTS?|\bDOCS\b|NON.?NEGOTIABLE|COPIES|\bCOPY\b|SET OF/.test(U);
+  return goods?"goods":docs?"docs":"unclear";
+}
+const TD_KEYS=["bl","mm","swb","cpbl","awb","road","courier","td"];
+function decTransport(F){
+  if(!F["46A"])return {status:"unclear",why:"Field 46A (documents required) was not found.",docs:[],other:[]};
+  const docs=decItems(F["46A"]).map(decDoc);const orig=[],copies=[],unclear=[],other=[];
+  docs.forEach(d=>{const U=d.text.toUpperCase();
+    if(d.key==="fwd"||d.key==="courierdocs"){other.push(d);return;}
+    if(!TD_KEYS.includes(d.key))return;
+    if(d.key==="courier"&&decCourierKind(U)==="unclear"){unclear.push(d);return;}
+    const isOrig=/ORIGINAL|FULL SET|\b[1-9]\s*\/\s*[1-9]\b/.test(U),isCopy=/\bCOP(Y|IES)\b|PHOTOCOP/.test(U);
+    (isCopy&&!isOrig?copies:orig).push(d);
+  });
+  const names=a=>[...new Set(a.map(d=>d.name.toLowerCase()))].join(", ");
+  if(orig.length)return {status:"qualifying_original_transport",docs:orig,other,why:`46A asks for an original ${names(orig)}.`};
+  if(unclear.length)return {status:"unclear",docs:unclear,other,why:"46A asks for a courier or post receipt but doesn't say whether it is for the goods or for documents."};
+  if(copies.length)return {status:"copies_only",docs:copies,other,why:`46A asks only for copies of the ${names(copies)}.`};
+  return {status:"no_qualifying_transport",docs:[],other,why:other.length?`46A asks for a ${names(other)}, which is not a transport document under Articles 19–25.`:"46A doesn't ask for a transport document covered by Articles 19–25."};
+}
+function decPeriod(F){
+  const raw=String(F["48"]||"").replace(/\s+/g," ").trim();
+  if(!raw)return {basis:"default",raw:""};
+  const U=raw.toUpperCase();const n=/(\d{1,3})/.exec(U);
+  if(!n)return {basis:"stated_unclear",raw};
+  let rest=U.slice(n.index+n[0].length).replace(/^\s*(CALENDAR\s+)?(DAYS?)?\s*\/?\s*/,"").replace(/,?\s*BUT\s+(WITHIN|NOT\s+LATER\s+THAN|BEFORE)\b.*$/,"").replace(/\b(WITHIN THE )?(VALIDITY|EXPIRY)( OF THE CREDIT)?\b.*$/,"").trim();
+  const days=+n[1];
+  if(!rest)return {basis:"stated_shipment",days,raw,ref:"shipment"};
+  if(/ISSU\w*\s+OF\s+(THE\s+)?(L\s?\/\s?C|CREDIT|D\s?\/\s?C|DOCUMENTARY CREDIT)/.test(rest))return {basis:"stated_other",days,raw,ref:"the issue of the credit"};
+  if(/SHIPMENT|SHIPPING|ON\s*BOARD|LOADING|DISPATCH|DESPATCH|B\s?\/\s?L|BILLS? OF LADING|\bAWB\b|AIR\s*WAY\s*BILL|TRANSPORT DOCUMENT|TAKING IN CHARGE|POST RECEIPT|COURIER RECEIPT/.test(rest))
+    return {basis:"stated_shipment",days,raw,ref:"shipment",issueDate:/(B\s?\/\s?L|BILLS? OF LADING|\bAWB\b|AIR\s*WAY\s*BILL|TRANSPORT DOCUMENT)\S*\s*(ISSUE\s*)?DATE|DATE OF (ISSUE|ISSUANCE)/.test(rest)};
+  const o=/(INVOICE|INSPECTION|CERTIFICATE|ARRIVAL|ACCEPTANCE|DELIVERY|PRODUCTION|COMPLETION|RECEIPT OF [A-Z ]+|ISSU\w*(\s+OF\s+[A-Z ]+)?)/.exec(rest);
+  if(o)return {basis:"stated_other",days,raw,ref:o[0].toLowerCase().replace(/\s+/g," ").trim()};
+  return {basis:"stated_unclear",days,raw};
+}
+function decPresLine(PR,TS){
+  if(PR.basis==="stated_shipment")return `${PR.days} days after shipment (field 48), not after expiry`;
+  if(PR.basis==="stated_other")return `${PR.days} days, counted from ${esc(PR.ref)} (field 48), not after expiry`;
+  if(PR.basis==="stated_unclear")return `As stated in field 48: "${esc(PR.raw)}"`;
+  if(TS.status==="qualifying_original_transport")return "21 days after shipment (default, Art. 14c), not after expiry";
+  if(TS.status==="unclear")return "21 days after shipment if an original transport document is presented; otherwise by expiry";
+  return "No default period: present by the expiry date";
 }
 const decSnip=(text,re)=>{const U=String(text);const m=re.exec(U.toUpperCase());if(!m)return "";let s=Math.max(0,U.lastIndexOf(".",m.index)+1),e=U.indexOf(".",m.index+m[0].length);if(e<0)e=U.length;let out=U.slice(s,e+1).replace(/\s+/g," ").trim();if(out.length>220)out=out.slice(0,217)+"…";return out;};
 const SOFT=[
@@ -1114,16 +1190,30 @@ function decCheck(P){
     else if(/EUCP/.test(r))add("info","Electronic presentation allowed (eUCP)","The eUCP applies alongside UCP 600: check the format and place for electronic records in the credit.","",["40E"]);
     // dates
     const ex=decDate(F["31D"]),ls=decDate(F["44C"]),is=decDate(F["31C"]);
-    const pm=/(\d{1,3})/.exec(T("48"));const per=pm?+pm[1]:null;const P2=per||21;
+    const PR=decPeriod(F),TS=decTransport(F);
+    const P2=PR.basis==="stated_shipment"?PR.days:(PR.basis==="default"&&(TS.status==="qualifying_original_transport"||TS.status==="unclear"))?21:null;
+    const cond=PR.basis==="default"&&TS.status==="unclear";
     if(ex&&dayDiff(td,ex.d)<0)add("red","The credit has expired",`The expiry date was ${fmtD(ex.d)}.`,"",["31D"]);
     if(ls&&ex&&ls.d>ex.d)add("red","Latest shipment is after expiry",`Shipping on the latest date (${fmtD(ls.d)}) would leave no time to present documents before expiry (${fmtD(ex.d)}). Ask for an amendment.`,"",["44C","31D"]);
-    else if(ls&&ex){const gap=dayDiff(ls.d,ex.d);
-      if(gap<P2)add(gap<10?"amber":"info",`Only ${gap} days between latest shipment and expiry`,`Documents must be presented within ${P2} days of shipment${per?"":" (the default, as 48 is silent)"}, but never after expiry (${A_(14,"(c)")}, ${A_(6,"(e)")}). If you ship on ${fmtD(ls.d)}, your real deadline is the expiry date, ${gap} days later. Shipping earlier gives you more time.`,"",["44C","31D","48"]);}
+    else if(ls&&ex&&P2){const gap=dayDiff(ls.d,ex.d);
+      if(gap<P2)add(gap<10?"amber":"info",`Only ${gap} days between latest shipment and expiry`,`${cond?`If your presentation includes an original transport document, documents must be presented within 21 days of shipment`:`Documents must be presented within ${P2} days of shipment${PR.basis==="default"?" (the default, as 48 is silent)":""}`}, but never after expiry (${A_(14,"(c)")}, ${A_(6,"(e)")}). If you ship on ${fmtD(ls.d)}, your real deadline is the expiry date, ${gap} days later. Shipping earlier gives you more time.`,"",["44C","31D","48"].filter(k=>F[k]));}
     if(ls&&dayDiff(td,ls.d)<0)add("amber","The latest shipment date has passed",`It was ${fmtD(ls.d)}. Unless you have already shipped, you need an amendment. It is never extended for a holiday (${A_(29,"(c)")}).`,"",["44C"]);
     if(F["44C"]&&F["44D"])add("amber","Both 44C and 44D are present","A credit should give either a latest shipment date or a shipment period, not both. Ask which applies.","",["44C","44D"]);
-    if(!F["44C"]&&!F["44D"])add("info","No latest shipment date",`You can ship up to the expiry date, but documents must still be presented within ${P2} days of shipment and before expiry.`,"",[]);
-    if(!F["48"])add("info","No presentation period stated",`The default applies: documents containing an original transport document must be presented within 21 calendar days after shipment, and before expiry (${A_(14,"(c)")}).`,"",[]);
-    else if(per&&per<10)add("amber",`Short presentation period: ${per} days`,"Getting the bill of lading, certificates and your bank's check done in this time is tight. Ask for at least 21 days if you can.","",["48"]);
+    if(!F["44C"]&&!F["44D"])add("info","No latest shipment date",`You can ship up to the expiry date, but documents must still be presented ${P2?`within ${P2} days of shipment${cond?" (if the 21-day default applies)":""} and `:""}before expiry.`,"",[]);
+    const fl=["46A","48"].filter(k=>F[k]);
+    if(PR.basis==="default"){
+      if(TS.status==="qualifying_original_transport")add("info","No presentation period stated: the 21-day default applies",`${esc(TS.why)} So documents must be presented within 21 calendar days after shipment, and never after expiry (${A_(14,"(c)")}).`,"",["46A"]);
+      else if(TS.status==="unclear")add("amber","Check whether the 21-day default applies",`Field 48 is silent. If your presentation includes an original transport document (a bill of lading, air waybill and so on), you must present within 21 days of shipment; otherwise the expiry date is the only deadline (${A_(14,"(c)")}). ${esc(TS.why)}`,"",fl);
+      else add("info","No default presentation period applies",`Field 48 is silent and ${esc(TS.why.charAt(0).toLowerCase()+TS.why.slice(1))} The 21-day default in ${A_(14,"(c)")} covers presentations that include an original transport document, so here the expiry date is the deadline. Present as early as you can all the same.`,"",fl);
+    }else{
+      if(PR.days!=null&&PR.days<10)add("amber",`Short presentation period: ${PR.days} days`,"Getting the bill of lading, certificates and your bank's check done in this time is tight. Ask for at least 21 days if you can.","",["48"]);
+      if(PR.basis==="stated_other")add("amber","The presentation period doesn't run from shipment",`Field 48 reads "${esc(PR.raw)}". The ${PR.days} days count from ${esc(PR.ref)}, not from shipment, so work out the deadline from that date, and never later than expiry.`,"",["48"]);
+      else if(PR.basis==="stated_unclear")add("amber","Check the presentation period wording",`Field 48 reads "${esc(PR.raw)}". The decoder couldn't tell which date the period counts from, so it hasn't used it in any date check. Ask your bank if unsure.`,"",["48"]);
+      else{
+        if(PR.issueDate)add("info","Period counts from the transport document's date","That is normally the shipment date. If the bill of lading has a separate dated on-board notation, that notation date is the shipment date; check which one your period runs from.","",["48"]);
+        if(TS.status==="no_qualifying_transport")add("info","Period runs from shipment, but no transport document is required","Check how the shipment date will be shown, for example in a certificate the credit asks for, so the period can be counted.","",fl);
+      }
+    }
     // expiry place & availability
     const place=ex?ex.rest:T("31D");const bc=decCountry(F["59"]||F["59A"])||"INDIA";const ac=decCountry(F["50"]);
     const counters=/COUNTER|ISSUING BANK/.test(place.toUpperCase());const epC=counters?(ac||"ABROAD"):decCountry(place);
@@ -1276,7 +1366,8 @@ function decSummary(P){
   const av=String(F["41A"]||F["41D"]||"").replace(/\n/g," ");rows.push(["Available",esc(av)||"–"]);
   rows.push(["Payment",esc(F["42C"]?String(F["42C"]).replace(/\n/g," "):(/DEF/.test(av.toUpperCase())?String(F["42P"]||"Deferred payment"):"–"))]);
   dd("31C","Issued");dd("44C","Latest shipment");if(F["44D"])rows.push(["Shipment period",esc(F["44D"])]);dd("31D","Expiry");
-  const pm=/(\d{1,3})/.exec(String(F["48"]||""));rows.push(["Presentation period",pm?pm[1]+" days after shipment":"21 days (default)"]);
+  const PR=decPeriod(F),TS=decTransport(F);rows.push(["Presentation period",decPresLine(PR,TS)]);
+  rows.push(["Transport document",{qualifying_original_transport:"Original required: "+esc([...new Set(TS.docs.map(d=>d.name.toLowerCase()))].join(", ")),copies_only:"Copies only",no_qualifying_transport:"None under Arts. 19–25",unclear:"Unclear: check 46A"}[TS.status]]);
   rows.push(["Partial / transhipment",esc((F["43P"]||"–")+" / "+(F["43T"]||"–"))]);
   const route=[F["44A"],F["44E"]].filter(Boolean).join(" · ")+" → "+[F["44F"],F["44B"]].filter(Boolean).join(" · ");
   if(route.trim()!=="→")rows.push(["Route",esc(route.replace(/\n/g," "))]);
@@ -1297,7 +1388,7 @@ function decRender(raw){
   const docHTML=docs.length?docs.map((d,i)=>`<div class="dec-doc"><div class="dec-doc-h"><span class="dec-num">${i+1}</span><b>${esc(d.name)}</b>${d.art?`<span class="dec-art">${A_(d.art)}</span>`:""}</div>${d.hi.length?`<div class="dec-hi">${d.hi.map(h=>`<span>${esc(h)}</span>`).join("")}</div>`:""}<p class="dec-src">${esc(d.text)}</p><ul class="dec-chk">${(DOC_CHECKS[d.key]||DOC_CHECKS.other)().map(c=>`<li>${c}</li>`).join("")}</ul></div>`).join(""):"";
   const fmtVal=(k,v)=>/^(45B|46B|47B|49M|49N)$/.test(k)?esc(v).replace(/\/(ADD|DELETE|REPALL)\//g,(m,c)=>`<span class="dec-code dec-code-${c.toLowerCase()}">${{ADD:"Adds",DELETE:"Deletes",REPALL:"Replaces all with"}[c]}</span>`):esc(v);
   const fieldHTML=P.order.map(k=>`<div class="dec-row" id="dfld-${k}"><div class="dec-row-h"><span class="dec-tagbig">${k}</span><b>${esc(decName(k,P.type))}</b>${MT_GUIDE.has(k)&&P.type==="700"?`<button type="button" class="dec-guide" data-guide="${k}">Guide</button>`:""}</div><pre class="dec-val">${fmtVal(k,F[k])||"<i>(empty)</i>"}</pre>${(()=>{const m=decMeaning(k,F[k],P);return m?`<p class="dec-mean">${m}</p>`:""})()}</div>`).join("");
-  const ex=decDate(F["31D"]),ls=decDate(F["44C"]);const pm=/(\d{1,3})/.exec(String(F["48"]||""));
+  const ex=decDate(F["31D"]),ls=decDate(F["44C"]);const PR=decPeriod(F),TS=decTransport(F);
   const canLC=P.type==="700"&&ex;
   box.hidden=false;
   box.innerHTML=`
@@ -1321,7 +1412,10 @@ function decRender(raw){
   ${docHTML?`<div class="dec-sec"><h2>${P.type==="707"?"Documents added or replaced":"Document checklist"}</h2><p class="muted">${P.type==="707"?"New or replacement document requirements from field 46B.":"From field 46A. Tick through these before you present."}</p><div class="dec-docs">${docHTML}</div></div>`:""}
   <div class="dec-sec"><h2>Field by field</h2><div class="dec-fields">${fieldHTML}</div></div>
   <p class="muted small dec-note">Read automatically from the text you pasted, using fixed rules. It is an aid to reading the credit, not a document examination, and it can miss unusual wording. Check anything important with your bank.</p>`;
-  if(canLC)$("dec-lc").addEventListener("click",()=>{const iso=x=>isoD(x);goRoute("tool-lc","#lc-"+(ls?iso(ls.d):"")+"_"+iso(ex.d)+"_"+(pm?pm[1]:"21"));});
+  if(canLC)$("dec-lc").addEventListener("click",()=>{
+    const per=PR.days!=null?PR.days:21;
+    const q=[["lsd",ls?isoD(ls.d):""],["exp",isoD(ex.d)],["per",per],["doc",TS.status],["basis",PR.basis]].map(([k,v])=>k+"="+v).join("~");
+    goRoute("tool-lc","#lc~"+q);});
   $("dec-print").addEventListener("click",()=>{try{window.print()}catch(_){}});
   $("dec-ai").addEventListener("click",()=>{const b=$("dec-ai-box");b.hidden=!b.hidden;if(!b.hidden)decPrompt();});
   $("dec-mask").addEventListener("change",decPrompt);
@@ -1509,5 +1603,5 @@ function decSample(k){
 /* ---------- start ---------- */
 const start=document.documentElement.dataset.page||"home";
 show(start);
-if(/^#(art|find|lc)-/.test(location.hash))setTimeout(()=>applyHash(location.hash),60);
+if(/^#(art|find|lc)[-~]/.test(location.hash))setTimeout(()=>applyHash(location.hash),60);
 })();
